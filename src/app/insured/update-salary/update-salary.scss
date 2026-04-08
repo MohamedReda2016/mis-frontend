@@ -1,0 +1,375 @@
+// ── UAE / GPSSA design tokens ─────────────────────────────────────────────────
+$navy:      #1A3C6E;      // structural navy (kept for data display)
+$gold:      #7c5e24;      // GPSSA primary gold (updated from #C09A3A)
+$uae-green: #006b48;      // UAE DS green
+$uae-red:   #c8102e;      // UAE DS red
+$border:    #e8e2d8;      // warm-tinted border (aligned with GPSSA)
+$surface:   #f5f5f5;      // neutral surface
+
+// ── Page shell ────────────────────────────────────
+.salary-update-page {
+  padding: 24px 32px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// ── Loading / Error ───────────────────────────────
+.page-loading,
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 100px 0;
+  color: #9ca3af;
+}
+
+.error-icon {
+  font-size: 52px;
+  width: 52px;
+  height: 52px;
+}
+
+// ── Back / Header ─────────────────────────────────
+.back-btn {
+  margin-bottom: 12px;
+  color: $navy;
+  font-size: 13px;
+  padding-inline-start: 0;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: $navy;
+}
+
+.page-subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+// ── Current Salary Card ───────────────────────────
+.current-salary-card {
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.current-salary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.current-salary-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.current-salary-effective {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.current-salary-rows {
+  max-width: 420px;
+}
+
+.cs-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #374151;
+
+  &.cs-total {
+    font-weight: 700;
+    font-size: 15px;
+    color: #111827;
+  }
+}
+
+.cs-value {
+  font-variant-numeric: tabular-nums;
+
+  &.total {
+    color: $navy;
+    font-size: 15px;
+  }
+}
+
+.cs-divider {
+  border: none;
+  border-top: 1px solid $border;
+  margin: 8px 0;
+}
+
+// ── Form Card ─────────────────────────────────────
+.form-card {
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: $navy;
+}
+
+.section-divider {
+  margin: 0;
+}
+
+.form-field-row {
+  display: flex;
+  gap: 16px;
+}
+
+.field-full {
+  width: 100%;
+}
+
+.attachment-wrapper {
+  padding: 16px 0 4px;
+  border-top: 1px solid $border;
+}
+
+.form-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Breakdown Card ────────────────────────────────
+.breakdown-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 18px 22px;
+}
+
+.breakdown-title {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breakdown-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #374151;
+  gap: 12px;
+
+  .br-calc {
+    font-variant-numeric: tabular-nums;
+    color: #6b7280;
+    text-align: end;
+  }
+}
+
+.breakdown-new-total {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111827;
+
+  .br-total {
+    font-size: 16px;
+    color: $navy;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.breakdown-prev {
+  font-size: 12px;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown-diff {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  &.diff-positive { color: $uae-green; }   // UAE DS Green
+  &.diff-negative { color: $uae-red; }     // UAE DS Red
+}
+
+.br-divider {
+  border: none;
+  border-top: 1px solid $border;
+  margin: 6px 0;
+}
+
+// ── Upload ────────────────────────────────────────
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upload-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.upload-zone {
+  border: 2px dashed $border;
+  border-radius: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover, &.drag-over {
+    border-color: $gold;          // GPSSA gold on drag-over
+    background: #fdf8f0;          // warm gold tint
+  }
+
+  &.upload-error {
+    border-color: #dc2626;
+  }
+}
+
+.upload-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.upload-link {
+  color: $gold;              // GPSSA gold for interactive link
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.upload-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.upload-error-msg {
+  margin: 0;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+}
+
+.file-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.file-remove {
+  flex-shrink: 0;
+  color: #9ca3af;
+
+  &:hover { color: #dc2626; }
+}
+
+// ── Form Actions ──────────────────────────────────
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+// ── Currency Suffix ───────────────────────────────
+.currency-suffix {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  letter-spacing: 0.3px;
+  user-select: none;
+}
+
+// ── Responsive ───────────────────────────────────
+@media (max-width: 768px) {
+  .salary-update-page {
+    padding: 16px;
+  }
+}

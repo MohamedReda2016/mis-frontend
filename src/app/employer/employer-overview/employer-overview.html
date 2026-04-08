@@ -1,0 +1,130 @@
+<div class="overview-page">
+
+  @if (loading()) {
+    <div class="centered-spinner">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else {
+
+    <div class="cards-grid">
+
+      <!-- ── Left card: Employer Identity & Actions ── -->
+      <section class="card identity-card" aria-labelledby="employer-heading">
+
+        <div class="identity-top">
+          <h1 id="employer-heading" class="employer-name">{{ employerName() }}</h1>
+          <button mat-stroked-button class="view-btn" (click)="goToProfile()">
+            {{ 'OVERVIEW.VIEW_ACCOUNT' | translate }}
+            <mat-icon iconPositionEnd class="mat-icon-rtl-mirror">arrow_forward</mat-icon>
+          </button>
+        </div>
+
+        <div class="action-panel" role="region" aria-labelledby="action-panel-heading">
+          <h2 id="action-panel-heading" class="action-panel-title">
+            <mat-icon aria-hidden="true">task_alt</mat-icon>
+            {{ 'OVERVIEW.ACTION_REQUIRED' | translate }}
+          </h2>
+
+          @if (actionCount() === 0) {
+            <p class="no-tasks">{{ 'OVERVIEW.NO_TASKS' | translate }}</p>
+          } @else {
+            <div class="returned-row">
+              <span class="count-chip">{{ actionCount() }}</span>
+              <span class="returned-label">{{ 'OVERVIEW.RETURNED_CASES' | translate }}</span>
+            </div>
+            <button mat-stroked-button class="activity-btn" (click)="goToActivity()">
+              {{ 'OVERVIEW.VIEW_ACTIVITY' | translate }}
+              <mat-icon iconPositionEnd class="mat-icon-rtl-mirror">arrow_forward</mat-icon>
+            </button>
+          }
+        </div>
+
+      </section>
+
+      <!-- ── Right card: Employees Summary ── -->
+      <section class="card summary-card" aria-labelledby="summary-heading">
+
+        <h2 id="summary-heading" class="summary-title">{{ 'OVERVIEW.EMPLOYEES_SUMMARY' | translate }}</h2>
+
+        <div class="summary-body">
+
+          <!-- Stats column -->
+          <div class="stats-col">
+            <p class="total-count" [attr.aria-label]="totalCount() + ' total employees'">
+              {{ totalCount() }}
+            </p>
+            <p class="total-label">{{ 'OVERVIEW.TOTAL_EMPLOYEES' | translate }}</p>
+
+            <ul class="status-list" aria-label="Employee status breakdown">
+              <li class="status-item">
+                <span class="dot dot-active"   aria-hidden="true"></span>
+                <span class="status-name">{{ 'OVERVIEW.STATUS_ACTIVE' | translate }}</span>
+                <span class="status-count">{{ activeCount() }}</span>
+              </li>
+              <li class="status-item">
+                <span class="dot dot-pending"  aria-hidden="true"></span>
+                <span class="status-name">{{ 'OVERVIEW.STATUS_ENROLLMENT' | translate }}</span>
+                <span class="status-count">{{ pendingCount() }}</span>
+              </li>
+              <li class="status-item">
+                <span class="dot dot-inactive" aria-hidden="true"></span>
+                <span class="status-name">{{ 'OVERVIEW.STATUS_INACTIVE' | translate }}</span>
+                <span class="status-count">{{ inactiveCount() }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Donut chart (pure SVG) -->
+          @let seg = donutSegments();
+          <svg viewBox="0 0 36 36" class="donut-svg" role="img"
+               [attr.aria-label]="'OVERVIEW.CHART_LABEL' | translate">
+            <!-- Track ring -->
+            <circle cx="18" cy="18" r="15.9155"
+                    fill="transparent" stroke="#e5e7eb" stroke-width="3.5" />
+
+            @if (seg) {
+              @if (seg.hasActive) {
+                <circle cx="18" cy="18" r="15.9155"
+                        fill="transparent"
+                        stroke="#22c55e"
+                        stroke-width="3.5"
+                        [attr.stroke-dasharray]="seg.active.dasharray"
+                        [attr.stroke-dashoffset]="seg.active.dashoffset" />
+              }
+              @if (seg.hasPending) {
+                <circle cx="18" cy="18" r="15.9155"
+                        fill="transparent"
+                        stroke="#f59e0b"
+                        stroke-width="3.5"
+                        [attr.stroke-dasharray]="seg.pending.dasharray"
+                        [attr.stroke-dashoffset]="seg.pending.dashoffset" />
+              }
+              @if (seg.hasInactive) {
+                <circle cx="18" cy="18" r="15.9155"
+                        fill="transparent"
+                        stroke="#d1d5db"
+                        stroke-width="3.5"
+                        [attr.stroke-dasharray]="seg.inactive.dasharray"
+                        [attr.stroke-dashoffset]="seg.inactive.dashoffset" />
+              }
+            }
+
+            <text x="18" y="19.5" text-anchor="middle" class="donut-center-text"
+                  font-size="7" font-weight="700" fill="#1A3C6E">
+              {{ totalCount() }}
+            </text>
+          </svg>
+
+        </div>
+
+        <button mat-stroked-button class="view-btn" (click)="goToInsureds()">
+          {{ 'OVERVIEW.VIEW_EMPLOYEE_DETAILS' | translate }}
+          <mat-icon iconPositionEnd class="mat-icon-rtl-mirror">arrow_forward</mat-icon>
+        </button>
+
+      </section>
+
+    </div>
+  }
+
+</div>

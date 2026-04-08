@@ -1,0 +1,342 @@
+<div class="profile-page">
+
+  <!-- ══ Section 1: Employer Info ══ -->
+  <section class="section">
+    <div class="section-head row-between">
+      <div>
+        <h2 class="section-title">{{ 'EMPLOYER_PROFILE.TITLE' | translate }}</h2>
+        <p class="section-subtitle">{{ 'EMPLOYER_PROFILE.SUBTITLE' | translate }}</p>
+      </div>
+      <div class="detail-actions">
+        @if (editingDetails()) {
+          <button mat-button (click)="cancelEditDetails()">
+            {{ 'EMPLOYER_PROFILE.INFO.CANCEL' | translate }}
+          </button>
+          <button mat-raised-button color="primary" (click)="saveDetails()" [disabled]="detailsSaving()">
+            <mat-icon>save</mat-icon>
+            {{ 'EMPLOYER_PROFILE.INFO.SAVE' | translate }}
+          </button>
+        } @else {
+          <button mat-stroked-button (click)="startEditDetails()">
+            <mat-icon>edit</mat-icon>
+            {{ 'EMPLOYER_PROFILE.INFO.EDIT' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="info-grid" [formGroup]="detailsForm">
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.NAME_EN' | translate }}</span>
+        <span class="info-value">{{ employer()?.legalNameEn ?? '—' }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.NAME_AR' | translate }}</span>
+        <span class="info-value" dir="rtl">{{ employer()?.legalNameAr ?? '—' }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.ID' | translate }}</span>
+        <span class="info-value">{{ employer()?.id ?? '—' }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.CODE' | translate }}</span>
+        <span class="info-value">
+          <span class="code-chip">{{ employer()?.code ?? '—' }}</span>
+        </span>
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.EMAIL' | translate }}</span>
+        @if (editingDetails()) {
+          <mat-form-field appearance="outline" class="edit-field" subscriptSizing="dynamic">
+            <input matInput type="email" formControlName="email" />
+          </mat-form-field>
+        } @else {
+          <span class="info-value">{{ employer()?.email ?? '—' }}</span>
+        }
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.IBAN' | translate }}</span>
+        @if (editingDetails()) {
+          <mat-form-field appearance="outline" class="edit-field" subscriptSizing="dynamic">
+            <input matInput formControlName="iban" />
+          </mat-form-field>
+        } @else {
+          <span class="info-value mono">{{ employer()?.iban ?? '—' }}</span>
+        }
+      </div>
+      <div class="info-card">
+        <span class="info-label">{{ 'EMPLOYER_PROFILE.INFO.POC_MOBILE' | translate }}</span>
+        @if (editingDetails()) {
+          <mat-form-field appearance="outline" class="edit-field" subscriptSizing="dynamic">
+            <input matInput type="tel" formControlName="pocMobileNumber" />
+          </mat-form-field>
+        } @else {
+          <span class="info-value">{{ employer()?.pocMobileNumber ?? '—' }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ Section 2: Member ID Configuration ══ -->
+  <section class="section">
+    <div class="section-head">
+      <h3 class="section-title">{{ 'EMPLOYER_PROFILE.MEMBER_ID.TITLE' | translate }}</h3>
+      <p class="section-subtitle">{{ 'EMPLOYER_PROFILE.MEMBER_ID.SUBTITLE' | translate }}</p>
+    </div>
+
+    <mat-radio-group [formControl]="strategyControl" class="strategy-group" aria-label="Member ID strategy">
+      <label
+        class="option-card"
+        [class.selected]="strategyControl.value === 'EMIRATES_ID'"
+        (click)="strategyControl.setValue('EMIRATES_ID')"
+        (keydown.enter)="strategyControl.setValue('EMIRATES_ID')"
+        (keydown.space)="strategyControl.setValue('EMIRATES_ID')"
+      >
+        <mat-radio-button value="EMIRATES_ID" (click)="$event.stopPropagation()">
+          <span class="option-title">{{ 'EMPLOYER_PROFILE.MEMBER_ID.EMIRATES_ID_LABEL' | translate }}</span>
+        </mat-radio-button>
+        <p class="option-desc">{{ 'EMPLOYER_PROFILE.MEMBER_ID.EMIRATES_ID_DESC' | translate }}</p>
+        <p class="option-example">{{ 'EMPLOYER_PROFILE.MEMBER_ID.EMIRATES_ID_EXAMPLE' | translate }}</p>
+      </label>
+
+      <label
+        class="option-card"
+        [class.selected]="strategyControl.value === 'MANUAL_PREFIX'"
+        (click)="strategyControl.setValue('MANUAL_PREFIX')"
+        (keydown.enter)="strategyControl.setValue('MANUAL_PREFIX')"
+        (keydown.space)="strategyControl.setValue('MANUAL_PREFIX')"
+      >
+        <mat-radio-button value="MANUAL_PREFIX" (click)="$event.stopPropagation()">
+          <span class="option-title">{{ 'EMPLOYER_PROFILE.MEMBER_ID.MANUAL_LABEL' | translate }}</span>
+        </mat-radio-button>
+        <p class="option-desc">{{ 'EMPLOYER_PROFILE.MEMBER_ID.MANUAL_DESC' | translate }}</p>
+        <p class="option-example">
+          {{ 'EMPLOYER_PROFILE.MEMBER_ID.MANUAL_EXAMPLE' | translate: { code: employer()?.code ?? 'CODE' } }}
+        </p>
+      </label>
+    </mat-radio-group>
+
+    <div class="config-status-row">
+      <h4 class="config-label">{{ 'EMPLOYER_PROFILE.MEMBER_ID.CURRENT_CONFIG' | translate }}</h4>
+      @if (savedStrategy()) {
+        <div class="config-status success" role="status">
+          <mat-icon>check_circle</mat-icon>
+          @if (savedStrategy() === 'EMIRATES_ID') {
+            <span>{{ 'EMPLOYER_PROFILE.MEMBER_ID.CONFIG_EMIRATES' | translate }}</span>
+          } @else {
+            <span>{{ 'EMPLOYER_PROFILE.MEMBER_ID.CONFIG_MANUAL' | translate: { code: employer()?.code } }}</span>
+          }
+        </div>
+      } @else {
+        <div class="config-status warning" role="status">
+          <mat-icon>info</mat-icon>
+          <span>{{ 'EMPLOYER_PROFILE.MEMBER_ID.NO_CONFIG' | translate }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="save-row">
+      <button mat-raised-button color="primary" (click)="openSaveDialog()">
+        <mat-icon>save</mat-icon>
+        {{ 'EMPLOYER_PROFILE.MEMBER_ID.SAVE' | translate }}
+      </button>
+    </div>
+  </section>
+
+  <!-- ══ Section 3: Salary Component Configuration ══ -->
+  <section class="section">
+    <div class="section-head row-between">
+      <div>
+        <h3 class="section-title">{{ 'EMPLOYER_PROFILE.SALARY.TITLE' | translate }}</h3>
+        <p class="section-subtitle">{{ 'EMPLOYER_PROFILE.SALARY.SUBTITLE' | translate }}</p>
+      </div>
+      <button mat-stroked-button (click)="toggleEditSalary()" [disabled]="salaryLoading()">
+        <mat-icon>{{ editingSalary() ? 'save' : 'edit' }}</mat-icon>
+        {{ (editingSalary() ? 'EMPLOYER_PROFILE.SALARY.SAVE' : 'EMPLOYER_PROFILE.SALARY.EDIT') | translate }}
+      </button>
+    </div>
+
+    @if (salaryLoading()) {
+      <div class="centered-spinner">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else {
+      <div class="salary-grid">
+        @for (comp of salaryComponents(); track comp.componentKey; let i = $index) {
+          <div class="salary-card" [class.inactive]="!comp.enabled">
+            <div class="salary-card-top">
+              <mat-checkbox
+                [checked]="comp.enabled"
+                [disabled]="!editingSalary()"
+                (change)="updateComponent(i, { enabled: $event.checked })"
+                [attr.aria-label]="'EMPLOYER_PROFILE.SALARY.' + comp.componentKey | translate"
+              >
+                <span class="salary-name">{{ 'EMPLOYER_PROFILE.SALARY.' + comp.componentKey | translate }}</span>
+              </mat-checkbox>
+            </div>
+            <mat-form-field appearance="outline" class="percentage-field">
+              <mat-label>{{ 'EMPLOYER_PROFILE.SALARY.CONTRIBUTABLE_PERCENTAGE' | translate }}</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                max="100"
+                [value]="comp.percentage"
+                [disabled]="!editingSalary() || !comp.enabled"
+                (change)="updateComponent(i, { percentage: +$any($event.target).value })"
+              />
+              <span matSuffix>%</span>
+            </mat-form-field>
+            @if (comp.effectiveDate) {
+              <p class="effective-date">
+                {{ 'EMPLOYER_PROFILE.SALARY.EFFECTIVE_DATE' | translate }}: {{ comp.effectiveDate }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ══ Section 4: Insured Personal Details Configuration ══ -->
+  <section class="section">
+    <div class="section-head row-between">
+      <div>
+        <h3 class="section-title">{{ 'EMPLOYER_PROFILE.FIELD_CONFIG.TITLE' | translate }}</h3>
+        <p class="section-subtitle">{{ 'EMPLOYER_PROFILE.FIELD_CONFIG.SUBTITLE' | translate }}</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="openFieldConfigDialog()" [disabled]="fieldConfigLoading()">
+        <mat-icon>save</mat-icon>
+        {{ 'EMPLOYER_PROFILE.FIELD_CONFIG.SAVE' | translate }}
+      </button>
+    </div>
+
+    @if (fieldConfigLoading()) {
+      <div class="centered-spinner">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else {
+      <div class="field-config-columns">
+        <div class="field-group">
+          <h4 class="field-group-title">{{ 'EMPLOYER_PROFILE.FIELD_CONFIG.ARABIC_GROUP' | translate }}</h4>
+          @for (entry of arabicFields(); track entry.key) {
+            <mat-checkbox
+              [checked]="entry.mandatory"
+              (change)="updateFieldEntry(entry.key, $event.checked)"
+            >
+              {{ entry.translationKey | translate }}
+            </mat-checkbox>
+          }
+        </div>
+        <div class="field-group">
+          <h4 class="field-group-title">{{ 'EMPLOYER_PROFILE.FIELD_CONFIG.ENGLISH_GROUP' | translate }}</h4>
+          @for (entry of englishFields(); track entry.key) {
+            <mat-checkbox
+              [checked]="entry.mandatory"
+              (change)="updateFieldEntry(entry.key, $event.checked)"
+            >
+              {{ entry.translationKey | translate }}
+            </mat-checkbox>
+          }
+        </div>
+      </div>
+      <p class="field-config-legend">
+        <mat-icon class="legend-icon">check_box</mat-icon>
+        {{ 'EMPLOYER_PROFILE.FIELD_CONFIG.LEGEND_CHECKED' | translate }}
+        &nbsp;|&nbsp;
+        <mat-icon class="legend-icon">check_box_outline_blank</mat-icon>
+        {{ 'EMPLOYER_PROFILE.FIELD_CONFIG.LEGEND_UNCHECKED' | translate }}
+      </p>
+    }
+  </section>
+
+  <!-- ══ Section 5: Salary Component History ══ -->
+  <section class="section">
+    <div class="section-head">
+      <h3 class="section-title">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.TITLE' | translate }}</h3>
+      <p class="section-subtitle">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.SUBTITLE' | translate }}</p>
+    </div>
+    <hr class="section-divider" aria-hidden="true" />
+
+    @if (historyLoading()) {
+      <div class="centered-spinner">
+        <mat-spinner diameter="32" />
+      </div>
+    } @else if (groupedHistory().length === 0) {
+      <p class="no-history" role="status">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.NO_DATA' | translate }}</p>
+    } @else {
+      <div class="history-table-wrapper">
+        <table
+          class="history-table"
+          role="table"
+          [attr.aria-label]="'EMPLOYER_PROFILE.SALARY_HISTORY.TITLE' | translate"
+        >
+          <thead>
+            <tr>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.START_DATE' | translate }}</th>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.END_DATE' | translate }}</th>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY.BASIC_SALARY' | translate }}</th>
+              <th scope="col" [attr.aria-label]="('EMPLOYER_PROFILE.SALARY.BASIC_SALARY' | translate) + ' ' + ('EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate)">
+                {{ 'EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate }}
+              </th>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY.CHILDREN_ALLOWANCE' | translate }}</th>
+              <th scope="col" [attr.aria-label]="('EMPLOYER_PROFILE.SALARY.CHILDREN_ALLOWANCE' | translate) + ' ' + ('EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate)">
+                {{ 'EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate }}
+              </th>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY.COMPLEMENTARY_ALLOWANCE' | translate }}</th>
+              <th scope="col" [attr.aria-label]="('EMPLOYER_PROFILE.SALARY.COMPLEMENTARY_ALLOWANCE' | translate) + ' ' + ('EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate)">
+                {{ 'EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate }}
+              </th>
+              <th scope="col">{{ 'EMPLOYER_PROFILE.SALARY.OTHER_ALLOWANCE' | translate }}</th>
+              <th scope="col" [attr.aria-label]="('EMPLOYER_PROFILE.SALARY.OTHER_ALLOWANCE' | translate) + ' ' + ('EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate)">
+                {{ 'EMPLOYER_PROFILE.SALARY_HISTORY.PERCENT' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of groupedHistory(); track row.startDate) {
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>
+                  @if (row.endDate) {
+                    {{ row.endDate }}
+                  } @else {
+                    <span class="active-badge">{{ 'EMPLOYER_PROFILE.SALARY_HISTORY.ACTIVE' | translate }}</span>
+                  }
+                </td>
+                <!-- Basic Salary -->
+                <td class="status-cell">
+                  <mat-icon [class]="row.BASIC_SALARY?.enabled ? 'icon-enabled' : 'icon-disabled'" aria-hidden="true">
+                    {{ row.BASIC_SALARY?.enabled ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </td>
+                <td class="percent-cell">{{ row.BASIC_SALARY?.percentage ?? 0 }}%</td>
+                <!-- Children Allowance -->
+                <td class="status-cell">
+                  <mat-icon [class]="row.CHILDREN_ALLOWANCE?.enabled ? 'icon-enabled' : 'icon-disabled'" aria-hidden="true">
+                    {{ row.CHILDREN_ALLOWANCE?.enabled ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </td>
+                <td class="percent-cell">{{ row.CHILDREN_ALLOWANCE?.percentage ?? 0 }}%</td>
+                <!-- Complementary Allowance -->
+                <td class="status-cell">
+                  <mat-icon [class]="row.COMPLEMENTARY_ALLOWANCE?.enabled ? 'icon-enabled' : 'icon-disabled'" aria-hidden="true">
+                    {{ row.COMPLEMENTARY_ALLOWANCE?.enabled ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </td>
+                <td class="percent-cell">{{ row.COMPLEMENTARY_ALLOWANCE?.percentage ?? 0 }}%</td>
+                <!-- Other Allowance -->
+                <td class="status-cell">
+                  <mat-icon [class]="row.OTHER_ALLOWANCE?.enabled ? 'icon-enabled' : 'icon-disabled'" aria-hidden="true">
+                    {{ row.OTHER_ALLOWANCE?.enabled ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </td>
+                <td class="percent-cell">{{ row.OTHER_ALLOWANCE?.percentage ?? 0 }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

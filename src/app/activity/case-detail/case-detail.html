@@ -1,0 +1,294 @@
+<div class="case-detail-page">
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="48" />
+    </div>
+
+  } @else if (!instance()) {
+    <div class="page-error">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ 'CASE_DETAIL.NOT_FOUND' | translate }}</p>
+      <button mat-stroked-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'INSURED_PROFILE.BACK' | translate }}
+      </button>
+    </div>
+
+  } @else {
+    @let i = instance()!;
+
+    <!-- ── Back ── -->
+    <button mat-button class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'INSURED_PROFILE.BACK' | translate }}
+    </button>
+
+    <!-- ── Header ── -->
+    <div class="case-header">
+      <div class="case-header-identity">
+        <div class="case-icon">
+          <mat-icon>folder_open</mat-icon>
+        </div>
+        <div>
+          <h1 class="case-title">{{ i.workflowDefinition.name }}</h1>
+          <p class="case-subtitle">
+            {{ 'CASE_DETAIL.BUSINESS_KEY' | translate }}: <span class="mono">{{ i.businessKey }}</span>
+            <span class="sep">·</span>
+            <span class="stage-badge">{{ i.currentState.key }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="detail-tabs" role="tablist">
+      <button
+        role="tab"
+        class="detail-tab"
+        [class.tab-active]="activeTab() === 'workflow'"
+        [attr.aria-selected]="activeTab() === 'workflow'"
+        (click)="setTab('workflow')"
+      >
+        <mat-icon>account_tree</mat-icon>
+        {{ 'CASE_DETAIL.TAB_WORKFLOW' | translate }}
+      </button>
+      <button
+        role="tab"
+        class="detail-tab"
+        [class.tab-active]="activeTab() === 'caseData'"
+        [attr.aria-selected]="activeTab() === 'caseData'"
+        (click)="setTab('caseData')"
+      >
+        <mat-icon>description</mat-icon>
+        {{ 'CASE_DETAIL.TAB_CASE_DATA' | translate }}
+      </button>
+      <button
+        role="tab"
+        class="detail-tab"
+        [class.tab-active]="activeTab() === 'documents'"
+        [attr.aria-selected]="activeTab() === 'documents'"
+        (click)="setTab('documents')"
+      >
+        <mat-icon>attach_file</mat-icon>
+        {{ 'CASE_DETAIL.TAB_DOCUMENTS' | translate }}
+      </button>
+      <button
+        role="tab"
+        class="detail-tab"
+        [class.tab-active]="activeTab() === 'history'"
+        [attr.aria-selected]="activeTab() === 'history'"
+        (click)="setTab('history')"
+      >
+        <mat-icon>history</mat-icon>
+        {{ 'CASE_DETAIL.TAB_HISTORY' | translate }}
+      </button>
+    </div>
+
+    <!-- ════ Tab 1: Workflow Metadata ════ -->
+    @if (activeTab() === 'workflow') {
+      <div class="detail-card">
+        <h2 class="card-title">{{ 'CASE_DETAIL.WORKFLOW_SECTION' | translate }}</h2>
+        <dl class="field-grid">
+          @for (row of workflowRows(); track row.label) {
+            <div class="field-item">
+              <dt class="field-label">{{ row.label }}</dt>
+              <dd class="field-value" [class.mono]="row.label.toLowerCase().includes('id') || row.label.toLowerCase().includes('key')">
+                {{ row.value }}
+              </dd>
+            </div>
+          }
+        </dl>
+
+        @if (canAct() && !pendingAction()) {
+          <div class="workflow-actions">
+            <button mat-raised-button color="primary"
+              (click)="requestAction('APPROVE')"
+              [attr.aria-label]="'CASE_DETAIL.APPROVE' | translate">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'CASE_DETAIL.APPROVE' | translate }}
+            </button>
+            <button mat-stroked-button class="btn-return"
+              (click)="requestAction('RETURN')"
+              [attr.aria-label]="'CASE_DETAIL.RETURN' | translate">
+              <mat-icon>undo</mat-icon>
+              {{ 'CASE_DETAIL.RETURN' | translate }}
+            </button>
+            <button mat-stroked-button class="btn-reject"
+              (click)="requestAction('REJECT')"
+              [attr.aria-label]="'CASE_DETAIL.REJECT' | translate">
+              <mat-icon>cancel</mat-icon>
+              {{ 'CASE_DETAIL.REJECT' | translate }}
+            </button>
+          </div>
+        }
+
+        <!-- ── Inline action confirmation panel ── -->
+        @if (pendingAction()) {
+          @let action = pendingAction()!;
+          <div class="action-panel" [class]="'panel-' + action.toLowerCase()" role="region"
+            [attr.aria-label]="'CASE_DETAIL.CONFIRM_PANEL_LABEL' | translate">
+
+            <div class="action-panel-header">
+              <mat-icon class="panel-icon">
+                {{ action === 'APPROVE' ? 'check_circle' : action === 'REJECT' ? 'cancel' : 'undo' }}
+              </mat-icon>
+              <span class="panel-title">{{ ('CASE_DETAIL.CONFIRM_' + action) | translate }}</span>
+            </div>
+
+            <label class="notes-label" for="action-notes">
+              {{ 'CASE_DETAIL.NOTES_LABEL' | translate }}
+              <span class="notes-optional">{{ 'CASE_DETAIL.NOTES_OPTIONAL' | translate }}</span>
+            </label>
+            <textarea
+              id="action-notes"
+              class="notes-textarea"
+              rows="3"
+              [placeholder]="'CASE_DETAIL.NOTES_PLACEHOLDER' | translate"
+              [value]="actionNotes()"
+              (input)="updateNotes($any($event.target).value)"
+              [disabled]="submitting()"
+            ></textarea>
+
+            <div class="panel-actions">
+              <button mat-button class="btn-cancel-action"
+                (click)="cancelAction()"
+                [disabled]="submitting()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button mat-raised-button
+                [class]="'btn-confirm-' + action.toLowerCase()"
+                (click)="confirmAction()"
+                [disabled]="submitting()">
+                @if (submitting()) {
+                  <mat-spinner diameter="16" />
+                } @else {
+                  <mat-icon>
+                    {{ action === 'APPROVE' ? 'check_circle' : action === 'REJECT' ? 'cancel' : 'undo' }}
+                  </mat-icon>
+                }
+                {{ ('CASE_DETAIL.CONFIRM_BTN_' + action) | translate }}
+              </button>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- ════ Tab 2: Case Data ════ -->
+    @if (activeTab() === 'caseData') {
+      @if (isInsuredRegistration()) {
+        <app-register-insured
+          [control]="caseControl()"
+          [dataJson]="instance()!.dataJson ?? null"
+          [busy]="saving()"
+          (saved)="onSaved($event)"
+          (approved)="onApproved()"
+          (rejected)="onRejected()"
+        />
+      } @else {
+        <div class="detail-card">
+          <h2 class="card-title">{{ 'CASE_DETAIL.CASE_DATA_SECTION' | translate }}</h2>
+          @if (caseDataRows().length === 0) {
+            <p class="empty-text">{{ 'CASE_DETAIL.NO_CASE_DATA' | translate }}</p>
+          } @else {
+            <dl class="field-grid">
+              @for (row of caseDataRows(); track row.label) {
+                <div class="field-item">
+                  <dt class="field-label">{{ row.label }}</dt>
+                  <dd class="field-value">{{ row.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+        </div>
+      }
+    }
+
+    <!-- ════ Tab 3: Documents ════ -->
+    @if (activeTab() === 'documents') {
+      <div class="detail-card documents-card">
+        <h2 class="card-title">{{ 'CASE_DETAIL.DOCUMENTS_TITLE' | translate }}</h2>
+
+        @if (docsReadonly()) {
+          <p class="docs-readonly-note">
+            <mat-icon>lock</mat-icon>
+            {{ 'CASE_DETAIL.DOCUMENTS_READONLY_NOTE' | translate }}
+          </p>
+        }
+
+        <app-attachment-upload
+          [caseId]="i.id"
+          [serviceType]="documentsServiceType()"
+          [uploadedBy]="currentUser() ?? undefined"
+          [readonly]="docsReadonly()"
+        />
+      </div>
+    }
+
+    <!-- ════ Tab 4: Audit History ════ -->
+    @if (activeTab() === 'history') {
+      <div class="detail-card history-card">
+        <h2 class="card-title">{{ 'CASE_DETAIL.HISTORY_TITLE' | translate }}</h2>
+
+        @if (historyLoading()) {
+          <div class="history-loading">
+            <mat-spinner diameter="36" />
+          </div>
+
+        } @else if (history().length === 0) {
+          <div class="history-empty">
+            <mat-icon>history_toggle_off</mat-icon>
+            <p>{{ 'CASE_DETAIL.HISTORY_EMPTY' | translate }}</p>
+          </div>
+
+        } @else {
+          <ol class="timeline" [attr.aria-label]="'CASE_DETAIL.HISTORY_TITLE' | translate">
+
+            @for (entry of history(); track entry.id; let idx = $index) {
+              @let meta = actionMeta(entry.action);
+              <li class="tl-item">
+
+                @if (!isLastHistoryEntry(idx)) {
+                  <div class="tl-line"></div>
+                }
+
+                <div class="tl-node" [class]="meta.colorClass" aria-hidden="true">
+                  <mat-icon>{{ meta.icon }}</mat-icon>
+                </div>
+
+                <div class="tl-body">
+                  <div class="tl-header">
+                    <span class="tl-action" [class]="meta.colorClass">{{ entry.action }}</span>
+                    <span class="tl-by">{{ entry.performedBy }}</span>
+                    <time class="tl-time" [dateTime]="entry.performedAt">
+                      {{ formatDate(entry.performedAt) }}
+                    </time>
+                  </div>
+
+                  <div class="tl-transition">
+                    <span class="tl-state">{{ entry.fromState }}</span>
+                    <mat-icon class="tl-arrow">arrow_forward</mat-icon>
+                    <span class="tl-state tl-state-to">{{ entry.toState }}</span>
+                  </div>
+
+                  @if (entry.notes) {
+                    <div class="tl-notes">
+                      <mat-icon class="tl-notes-icon">chat_bubble_outline</mat-icon>
+                      <span class="tl-notes-text">{{ entry.notes }}</span>
+                    </div>
+                  }
+                </div>
+
+              </li>
+            }
+
+          </ol>
+        }
+      </div>
+    }
+
+  }
+</div>

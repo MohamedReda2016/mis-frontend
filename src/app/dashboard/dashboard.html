@@ -1,0 +1,128 @@
+<div class="layout">
+
+  <!-- ── Topbar ── -->
+  <header class="topbar" role="banner">
+
+    <!-- Left: hamburger (mobile) + branding -->
+    <div class="topbar-start">
+      <button mat-icon-button class="hamburger" (click)="toggleMobileNav()"
+        [attr.aria-expanded]="mobileNavOpen()"
+        [attr.aria-label]="'DASHBOARD.MENU' | translate">
+        <mat-icon>{{ mobileNavOpen() ? 'close' : 'menu' }}</mat-icon>
+      </button>
+
+      <img src="assets/gpssa-logo.svg" class="brand-logo" alt="GPSSA" />
+    </div>
+
+    <!-- Center: employer context -->
+    <div class="topbar-center">
+      @if (employerDisplayName(); as name) {
+        <div class="employer-chip">
+          <mat-icon class="chip-icon" aria-hidden="true">business</mat-icon>
+          <span class="chip-text">{{ name }}</span>
+        </div>
+        <button mat-icon-button class="switch-btn"
+          (click)="switchEmployer()"
+          [matTooltip]="'DASHBOARD.SWITCH_EMPLOYER' | translate">
+          <mat-icon>swap_horiz</mat-icon>
+        </button>
+      } @else {
+        <div class="employer-chip chip-warn">
+          <mat-icon class="chip-icon" aria-hidden="true">warning_amber</mat-icon>
+          <span class="chip-text">{{ 'DASHBOARD.NO_EMPLOYER' | translate }}</span>
+        </div>
+        <button mat-icon-button class="switch-btn"
+          (click)="switchEmployer()"
+          [matTooltip]="'DASHBOARD.SELECT_EMPLOYER_BTN' | translate">
+          <mat-icon>add_circle_outline</mat-icon>
+        </button>
+      }
+    </div>
+
+    <!-- Right: lang + user menu -->
+    <div class="topbar-end">
+      <app-lang-switcher />
+
+      <button class="user-avatar" [matMenuTriggerFor]="userMenu"
+        [attr.aria-label]="authService.currentUser()">
+        {{ userInitials() }}
+      </button>
+
+      <mat-menu #userMenu="matMenu" class="user-menu-panel">
+        <div class="user-menu-header" mat-menu-item disabled>
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ authService.currentUser() }}</span>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="authService.logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ 'DASHBOARD.LOGOUT' | translate }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </header>
+
+  <!-- ── Tab Navigation (desktop) ── -->
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel" color="primary" class="tab-nav" aria-label="Main navigation">
+    <a mat-tab-link [routerLink]="['overview']" routerLinkActive #rlaOverview="routerLinkActive"
+      [active]="rlaOverview.isActive" (click)="closeMobileNav()">
+      <mat-icon class="tab-icon">dashboard</mat-icon>
+      {{ 'DASHBOARD.TABS.OVERVIEW' | translate }}
+    </a>
+    <a mat-tab-link [routerLink]="['profile']" routerLinkActive #rlaProfile="routerLinkActive"
+      [active]="rlaProfile.isActive" (click)="closeMobileNav()">
+      <mat-icon class="tab-icon">domain</mat-icon>
+      {{ 'DASHBOARD.TABS.PROFILE' | translate }}
+    </a>
+    <a mat-tab-link [routerLink]="['insureds']" routerLinkActive #rlaInsured="routerLinkActive"
+      [active]="rlaInsured.isActive" (click)="closeMobileNav()">
+      <mat-icon class="tab-icon">people</mat-icon>
+      {{ 'DASHBOARD.TABS.INSUREDS' | translate }}
+    </a>
+    <a mat-tab-link [routerLink]="['activity']" routerLinkActive #rlaActivity="routerLinkActive"
+      [active]="rlaActivity.isActive" (click)="closeMobileNav()">
+      <mat-icon class="tab-icon">folder_open</mat-icon>
+      {{ 'DASHBOARD.TABS.ACTIVITY' | translate }}
+    </a>
+  </nav>
+
+  <!-- ── Mobile Nav Drawer ── -->
+  @if (mobileNavOpen()) {
+    <div class="mobile-nav-backdrop" (click)="closeMobileNav()" aria-hidden="true"></div>
+    <nav class="mobile-nav" role="navigation" [attr.aria-label]="'DASHBOARD.MENU' | translate">
+      @if (employerDisplayName(); as name) {
+        <div class="mobile-employer">
+          <mat-icon>business</mat-icon>
+          <span>{{ name }}</span>
+        </div>
+        <button mat-button class="mobile-nav-item switch" (click)="switchEmployer()">
+          <mat-icon>swap_horiz</mat-icon>
+          {{ 'DASHBOARD.SWITCH_EMPLOYER' | translate }}
+        </button>
+      }
+      <mat-divider />
+      <a mat-button class="mobile-nav-item" [routerLink]="['overview']" (click)="closeMobileNav()">
+        <mat-icon>dashboard</mat-icon>
+        {{ 'DASHBOARD.TABS.OVERVIEW' | translate }}
+      </a>
+      <a mat-button class="mobile-nav-item" [routerLink]="['profile']" (click)="closeMobileNav()">
+        <mat-icon>domain</mat-icon>
+        {{ 'DASHBOARD.TABS.PROFILE' | translate }}
+      </a>
+      <a mat-button class="mobile-nav-item" [routerLink]="['insureds']" (click)="closeMobileNav()">
+        <mat-icon>people</mat-icon>
+        {{ 'DASHBOARD.TABS.INSUREDS' | translate }}
+      </a>
+      <a mat-button class="mobile-nav-item" [routerLink]="['activity']" (click)="closeMobileNav()">
+        <mat-icon>folder_open</mat-icon>
+        {{ 'DASHBOARD.TABS.ACTIVITY' | translate }}
+      </a>
+    </nav>
+  }
+
+  <!-- ── Content ── -->
+  <mat-tab-nav-panel #tabPanel class="tab-panel">
+    <router-outlet />
+  </mat-tab-nav-panel>
+
+</div>

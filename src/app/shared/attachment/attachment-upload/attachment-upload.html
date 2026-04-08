@@ -1,0 +1,119 @@
+<div class="attachment-section">
+  <div class="attachment-header">
+    <mat-icon class="section-icon">attach_file</mat-icon>
+    <span class="section-label">{{ 'ATTACHMENTS.SECTION_TITLE' | translate }}</span>
+    <span class="count-badge" [class.has-files]="activeAttachments().length > 0">
+      {{ activeAttachments().length }}
+    </span>
+  </div>
+
+  <!-- Drop zone (hidden in readonly mode) -->
+  @if (!readonly()) {
+    <div
+      class="drop-zone"
+      [class.drag-active]="dragOver()"
+      role="button"
+      [attr.aria-label]="'ATTACHMENTS.DROP_ZONE_LABEL' | translate"
+      tabindex="0"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      (keydown.enter)="fileInput.click()"
+      (keydown.space)="fileInput.click()"
+      (click)="fileInput.click()"
+    >
+      <mat-icon class="drop-icon">cloud_upload</mat-icon>
+      <p class="drop-primary">{{ 'ATTACHMENTS.DROP_ZONE_PRIMARY' | translate }}</p>
+      <p class="drop-secondary">{{ 'ATTACHMENTS.DROP_ZONE_SECONDARY' | translate }}</p>
+      <input
+        #fileInput
+        type="file"
+        class="hidden-input"
+        multiple
+        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+        (change)="onFileSelected($event)"
+        [attr.aria-hidden]="true"
+      />
+    </div>
+  }
+
+  <!-- File list -->
+  @if (activeAttachments().length > 0) {
+    <ul class="file-list" role="list" [attr.aria-label]="'ATTACHMENTS.FILE_LIST_LABEL' | translate">
+      @for (item of activeAttachments(); track item.id) {
+        <li class="file-item" [class.uploading]="item.uploading" [class.has-error]="!!item.error">
+          <mat-icon class="file-icon">{{ fileIcon(item) }}</mat-icon>
+
+          <div class="file-info">
+            <span class="file-name">
+              {{ item.attachment?.originalFileName ?? item.file?.name }}
+            </span>
+            <span class="file-meta">
+              @if (item.uploading) {
+                {{ 'ATTACHMENTS.UPLOADING' | translate }}
+              } @else if (item.error) {
+                {{ item.error }}
+              } @else {
+                {{ formatSize(item.attachment!.fileSize) }}
+              }
+            </span>
+          </div>
+
+          @if (item.uploading) {
+            <mat-progress-bar mode="indeterminate" class="upload-progress" />
+          }
+
+          <div class="file-actions">
+            @if (!item.uploading && !item.error && item.attachment) {
+              <!-- Preview -->
+              <button
+                mat-icon-button
+                class="preview-btn"
+                [attr.aria-label]="'ATTACHMENTS.PREVIEW' | translate"
+                [disabled]="previewing() === item.attachment.id || downloading() === item.attachment.id"
+                (click)="preview(item); $event.stopPropagation()"
+              >
+                @if (previewing() === item.attachment.id) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  <mat-icon>visibility</mat-icon>
+                }
+              </button>
+              <!-- Download -->
+              <button
+                mat-icon-button
+                class="download-btn"
+                [attr.aria-label]="'ATTACHMENTS.DOWNLOAD' | translate"
+                [disabled]="downloading() === item.attachment.id || previewing() === item.attachment.id"
+                (click)="download(item); $event.stopPropagation()"
+              >
+                @if (downloading() === item.attachment.id) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  <mat-icon>download</mat-icon>
+                }
+              </button>
+            }
+            @if (!readonly()) {
+              <button
+                mat-icon-button
+                class="remove-btn"
+                [attr.aria-label]="'ATTACHMENTS.REMOVE' | translate"
+                (click)="remove(item); $event.stopPropagation()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else if (readonly()) {
+    <p class="no-attachments">{{ 'ATTACHMENTS.NONE' | translate }}</p>
+  }
+
+  <!-- Hint -->
+  @if (!readonly()) {
+    <p class="attachment-hint">{{ 'ATTACHMENTS.HINT' | translate }}</p>
+  }
+</div>

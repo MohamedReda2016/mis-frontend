@@ -1,0 +1,347 @@
+<div class="profile-page">
+
+  <!-- ── Loading ── -->
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="48" />
+    </div>
+
+  } @else if (!insured()) {
+    <div class="page-error">
+      <mat-icon class="error-icon">person_off</mat-icon>
+      <p>{{ 'INSURED_PROFILE.NOT_FOUND' | translate }}</p>
+      <button mat-stroked-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'INSURED_PROFILE.BACK' | translate }}
+      </button>
+    </div>
+
+  } @else {
+    @let i = insured()!;
+    @let emp = employer();
+
+    <!-- ── Back ── -->
+    <button mat-button class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'INSURED_PROFILE.BACK' | translate }}
+    </button>
+
+    <!-- ── Profile Header ── -->
+    <div class="profile-header">
+      <div class="header-identity">
+        <div class="avatar" [style.background]="avatarColor()">{{ initials() }}</div>
+
+        <div class="identity-info">
+          <h1 class="name-en">{{ fullNameEn() || '—' }}</h1>
+          @if (fullNameAr()) {
+            <p class="name-ar" dir="rtl">{{ fullNameAr() }}</p>
+          }
+          <div class="identity-meta">
+            <span class="member-id-badge">{{ i.memberId }}</span>
+            @if (i.status === 'ACTIVE') {
+              <span class="status-dot status-active">
+                <span class="dot"></span>{{ 'MANAGE_INSUREDS.STATUS_ACTIVE' | translate }}
+              </span>
+            } @else {
+              <span class="status-dot status-inactive">
+                <span class="dot"></span>{{ 'MANAGE_INSUREDS.STATUS_INACTIVE' | translate }}
+              </span>
+            }
+          </div>
+          @if (emp) {
+            <p class="meta-line">
+              <mat-icon class="meta-icon">business</mat-icon>
+              {{ emp.legalNameEn }}
+              <span class="meta-sep">·</span>
+              <mat-icon class="meta-icon">calendar_today</mat-icon>
+              {{ 'INSURED_PROFILE.JOINED' | translate }}: {{ formatDate(i.joiningDate) }}
+            </p>
+          }
+        </div>
+      </div>
+
+      @if (showActions()) {
+        <div class="header-actions">
+          <button mat-raised-button class="btn-gold" (click)="updateSalary()">
+            <mat-icon>payments</mat-icon>
+            {{ 'INSURED_PROFILE.UPDATE_SALARY' | translate }}
+          </button>
+          <button mat-stroked-button class="btn-navy-outline" (click)="recordEOS()">
+            <mat-icon>exit_to_app</mat-icon>
+            {{ 'INSURED_PROFILE.RECORD_EOS' | translate }}
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="moreMenu"
+            [matTooltip]="'INSURED_PROFILE.MORE_ACTIONS' | translate">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #moreMenu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>merge</mat-icon>
+              {{ 'INSURED_PROFILE.RECORD_MERGE' | translate }}
+            </button>
+            <button mat-menu-item>
+              <mat-icon>shopping_cart</mat-icon>
+              {{ 'INSURED_PROFILE.RECORD_PURCHASE' | translate }}
+            </button>
+          </mat-menu>
+        </div>
+      }
+    </div>
+
+    <!-- ── Contextual Banners ── -->
+    @if (i.status !== 'ACTIVE') {
+      <div class="banner banner-amber" role="alert">
+        <mat-icon>warning</mat-icon>
+        <span>{{ 'INSURED_PROFILE.BANNER_TERMINATED' | translate: { date: formatDate(i.endDate) } }}</span>
+      </div>
+    }
+
+    <!-- ── Main Layout: Vertical Tabs ── -->
+    <div class="profile-layout">
+
+      <!-- Vertical Tab Sidebar -->
+      <nav class="tab-sidebar" role="tablist" [attr.aria-label]="'INSURED_PROFILE.TAB_NAV' | translate">
+        @for (tab of [
+          { key: 'personal',       icon: 'person',          label: 'INSURED_PROFILE.TAB_PERSONAL' },
+          { key: 'employment',     icon: 'work',            label: 'INSURED_PROFILE.TAB_EMPLOYMENT' },
+          { key: 'salary',         icon: 'payments',        label: 'INSURED_PROFILE.TAB_SALARY' },
+          { key: 'contributions',  icon: 'account_balance', label: 'INSURED_PROFILE.TAB_CONTRIBUTIONS' }
+        ]; track tab.key) {
+          <button
+            class="tab-item"
+            role="tab"
+            [class.tab-active]="activeTab() === tab.key"
+            [attr.aria-selected]="activeTab() === tab.key"
+            (click)="setTab($any(tab.key))"
+          >
+            <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+            <span class="tab-label">{{ tab.label | translate }}</span>
+          </button>
+        }
+      </nav>
+
+      <!-- Tab Content -->
+      <div class="tab-content" role="tabpanel">
+
+        <!-- ════ TAB 1: Personal Info ════ -->
+        @if (activeTab() === 'personal') {
+
+          <!-- Identity Card -->
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.IDENTITY_SECTION' | translate }}</h2>
+            <div class="fields-grid">
+              <div class="field-item">
+                <span class="field-label">{{ 'MANAGE_INSUREDS.COL_MEMBER_ID' | translate }}</span>
+                <span class="field-value mono">{{ i.memberId }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'INSURED_PROFILE.MEMBER_ID_STRATEGY' | translate }}</span>
+                <span class="field-value">{{ strategyLabel(i.memberIdStrategy) }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.DOB' | translate }}</span>
+                <span class="field-value">{{ formatDate(i.dateOfBirth) }}</span>
+              </div>
+              @if (age() !== null) {
+                <div class="field-item">
+                  <span class="field-label">{{ 'INSURED_PROFILE.AGE' | translate }}</span>
+                  <span class="field-value">{{ age() }} {{ 'INSURED_PROFILE.YEARS' | translate }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Name Details Card -->
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.NAME_SECTION' | translate }}</h2>
+
+            <p class="name-group-heading">{{ 'REGISTER_INSURED.ENGLISH_NAME_GROUP' | translate }}</p>
+            <div class="fields-grid fields-grid--3">
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.FIRST_NAME_EN' | translate }}</span>
+                <span class="field-value">{{ i.firstNameEn || '—' }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.MIDDLE_NAME_EN' | translate }}</span>
+                <span class="field-value">{{ i.middleNameEn || '—' }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.LAST_NAME_EN' | translate }}</span>
+                <span class="field-value">{{ i.lastNameEn || '—' }}</span>
+              </div>
+            </div>
+
+            <hr class="card-divider" />
+
+            <p class="name-group-heading" dir="rtl">{{ 'REGISTER_INSURED.ARABIC_NAME_GROUP' | translate }}</p>
+            <div class="fields-grid fields-grid--3">
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.FIRST_NAME_AR' | translate }}</span>
+                <span class="field-value arabic" dir="rtl">{{ i.firstNameAr || '—' }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.MIDDLE_NAME_AR' | translate }}</span>
+                <span class="field-value arabic" dir="rtl">{{ i.middleNameAr || '—' }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.LAST_NAME_AR' | translate }}</span>
+                <span class="field-value arabic" dir="rtl">{{ i.lastNameAr || '—' }}</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ════ TAB 2: Employment ════ -->
+        @if (activeTab() === 'employment') {
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.EMPLOYMENT_SECTION' | translate }}</h2>
+            <div class="fields-grid">
+              @if (emp) {
+                <div class="field-item">
+                  <span class="field-label">{{ 'INSURED_PROFILE.EMPLOYER' | translate }}</span>
+                  <span class="field-value">{{ emp.legalNameEn }}</span>
+                </div>
+              }
+              <div class="field-item">
+                <span class="field-label">{{ 'INSURED_PROFILE.EMPLOYMENT_STATUS' | translate }}</span>
+                <span class="field-value">
+                  @if (i.status === 'ACTIVE') {
+                    <span class="status-chip chip-active">● {{ 'MANAGE_INSUREDS.STATUS_ACTIVE' | translate }}</span>
+                  } @else {
+                    <span class="status-chip chip-inactive">● {{ 'MANAGE_INSUREDS.STATUS_INACTIVE' | translate }}</span>
+                  }
+                </span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'REGISTER_INSURED.JOINING_DATE' | translate }}</span>
+                <span class="field-value">{{ formatDate(i.joiningDate) }}</span>
+              </div>
+              <div class="field-item">
+                <span class="field-label">{{ 'MANAGE_INSUREDS.COL_END_DATE' | translate }}</span>
+                <span class="field-value">{{ formatDate(i.endDate) }}</span>
+              </div>
+              @if (daysInService() !== null) {
+                <div class="field-item">
+                  <span class="field-label">{{ 'INSURED_PROFILE.DAYS_IN_SERVICE' | translate }}</span>
+                  <span class="field-value mono">{{ daysInService() | number }}</span>
+                </div>
+              }
+              @if (serviceYearsMonths(); as svc) {
+                <div class="field-item">
+                  <span class="field-label">{{ 'INSURED_PROFILE.YEARS_OF_SERVICE' | translate }}</span>
+                  <span class="field-value">{{ svc.years }} {{ 'INSURED_PROFILE.YEARS' | translate }}, {{ svc.months }} {{ 'INSURED_PROFILE.MONTHS' | translate }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.SERVICE_PERIODS' | translate }}</h2>
+            <p class="empty-text">{{ 'INSURED_PROFILE.NO_SERVICE_PERIODS' | translate }}</p>
+          </div>
+        }
+
+        <!-- ════ TAB 3: Salary History ════ -->
+        @if (activeTab() === 'salary') {
+          <div class="content-card card-highlighted">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.CURRENT_SALARY' | translate }}</h2>
+            <div class="salary-breakdown">
+              <div class="salary-row">
+                <span class="sal-label">{{ 'REGISTER_INSURED.BASIC_SALARY' | translate }}</span>
+                <span class="sal-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.basicSalary | number:'1.2-2' }}</span>
+              </div>
+              @if (i.childrenAllowance) {
+                <div class="salary-row">
+                  <span class="sal-label">{{ 'REGISTER_INSURED.CHILDREN_ALLOWANCE' | translate }}</span>
+                  <span class="sal-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.childrenAllowance | number:'1.2-2' }}</span>
+                </div>
+              }
+              @if (i.complementaryAllowance) {
+                <div class="salary-row">
+                  <span class="sal-label">{{ 'REGISTER_INSURED.COMPLEMENTARY_ALLOWANCE' | translate }}</span>
+                  <span class="sal-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.complementaryAllowance | number:'1.2-2' }}</span>
+                </div>
+              }
+              @if (i.otherAllowance) {
+                <div class="salary-row">
+                  <span class="sal-label">{{ 'REGISTER_INSURED.OTHER_ALLOWANCE' | translate }}</span>
+                  <span class="sal-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.otherAllowance | number:'1.2-2' }}</span>
+                </div>
+              }
+              <hr class="sal-divider" />
+              <div class="salary-row salary-total">
+                <span class="sal-label">{{ 'REGISTER_INSURED.BREAKDOWN_TOTAL' | translate }}</span>
+                <span class="sal-value total">{{ 'COMMON.CURRENCY' | translate }} {{ i.contributableSalary | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.SALARY_HISTORY_TITLE' | translate }}</h2>
+            @if (salaryHistory().length === 0) {
+              <p class="empty-text">{{ 'INSURED_PROFILE.NO_SALARY_HISTORY' | translate }}</p>
+            } @else {
+              <table mat-table [dataSource]="salaryHistory()" class="data-table">
+                <ng-container matColumnDef="effectiveDate">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'INSURED_PROFILE.SAL_EFFECTIVE_DATE' | translate }}</th>
+                  <td mat-cell *matCellDef="let r" [class.salary-current]="r.status === 'APPROVED' && !r.endDate">{{ formatDate(r.effectiveDate) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="endDate">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'INSURED_PROFILE.SAL_END_DATE' | translate }}</th>
+                  <td mat-cell *matCellDef="let r">
+                    @if (r.status === 'APPROVED' && !r.endDate) {
+                      <span class="current-badge">{{ 'INSURED_PROFILE.SAL_CURRENT' | translate }}</span>
+                    } @else {
+                      {{ formatDate(r.endDate) }}
+                    }
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="basicSalary">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'REGISTER_INSURED.BASIC_SALARY' | translate }}</th>
+                  <td mat-cell *matCellDef="let r">{{ 'COMMON.CURRENCY' | translate }} {{ r.basicSalary | number:'1.2-2' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="contributableSalary">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'REGISTER_INSURED.BREAKDOWN_TOTAL' | translate }}</th>
+                  <td mat-cell *matCellDef="let r" class="sal-value">{{ 'COMMON.CURRENCY' | translate }} {{ r.contributableSalary | number:'1.2-2' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_STATUS' | translate }}</th>
+                  <td mat-cell *matCellDef="let r">
+                    <span class="status-badge" [class]="r.status === 'APPROVED' ? 'badge-approved' : 'badge-under-review'">
+                      {{ 'INSURED_PROFILE.SAL_STATUS_' + r.status | translate }}
+                    </span>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="source">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'INSURED_PROFILE.SAL_SOURCE' | translate }}</th>
+                  <td mat-cell *matCellDef="let r">{{ 'INSURED_PROFILE.SAL_SOURCE_' + r.source | translate }}</td>
+                </ng-container>
+                <ng-container matColumnDef="createdBy">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.META_CREATED_BY' | translate }}</th>
+                  <td mat-cell *matCellDef="let r">{{ r.createdBy || '—' }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="salaryColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: salaryColumns;"></tr>
+              </table>
+            }
+          </div>
+        }
+
+        <!-- ════ TAB 4: Contributions ════ -->
+        @if (activeTab() === 'contributions') {
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.CONTRIBUTIONS_SUMMARY' | translate }}</h2>
+            <p class="empty-text">{{ 'INSURED_PROFILE.NO_CONTRIBUTIONS' | translate }}</p>
+          </div>
+
+          <div class="content-card">
+            <h2 class="card-title">{{ 'INSURED_PROFILE.CONTRIBUTIONS_HISTORY' | translate }}</h2>
+            <p class="empty-text">{{ 'INSURED_PROFILE.NO_CONTRIBUTIONS' | translate }}</p>
+          </div>
+        }
+
+      </div><!-- /tab-content -->
+    </div><!-- /profile-layout -->
+
+  }
+</div>

@@ -1,0 +1,335 @@
+// ── UAE / GPSSA design tokens ────────────────────────────────────────────────
+// Sourced from gpssa.gov.ae computed styles + UAE Design System guidelines
+$gpssa-gold:       #7c5e24;   // GPSSA primary gold (matches login button)
+$gpssa-gold-hover: #5e4718;   // darker hover shade
+$gpssa-gold-light: #f5e6c8;   // tint for chip backgrounds
+$gpssa-gold-border: rgba(124, 94, 36, 0.25);
+$uae-gold:         #ca9a2c;   // UAE DS official gold (active indicator)
+$uae-green:        #006b48;   // UAE DS green
+$uae-black:        #232528;   // UAE DS black
+$gpssa-burgundy:   #a43534;   // GPSSA accent red
+$gpssa-warm-bg:    #f3f0ea;   // warm beige surface
+$text-dark:        #1a1e21;   // near-black body text
+$text-muted:       #6b7280;
+$border:           #e8e2d8;   // warm-tinted border
+
+// ── Layout ──────────────────────────────────────────────────────────────────
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+// ── Topbar ───────────────────────────────────────────────────────────────────
+// Matches the GPSSA Ma'ashi portal: clean white header, warm gold accents
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  height: 64px;
+  background: #ffffff;
+  // Slim warm-gold stripe at top — signature GPSSA branding touch
+  border-top: 3px solid $gpssa-gold;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: $text-dark;
+}
+
+// ── Start (hamburger + brand) ────────────────────────────────────────────────
+.topbar-start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hamburger {
+  display: none;
+  color: $gpssa-gold !important;
+}
+
+.brand-logo {
+  height: 44px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+// ── Center (employer context chip) ───────────────────────────────────────────
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  min-width: 0;
+}
+
+.employer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $gpssa-gold-light;
+  border: 1px solid $gpssa-gold-border;
+  color: $gpssa-gold;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 6px;      // UAE DS 8 px radius for interactive elements
+  min-width: 0;
+  max-width: 360px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+
+  &.chip-warn {
+    background: rgba(200, 16, 46, 0.06);
+    border-color: rgba(200, 16, 46, 0.3);
+    color: #9f1239;
+  }
+
+  .chip-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.switch-btn {
+  color: $text-muted !important;
+  flex-shrink: 0;
+  border-radius: 8px !important;
+
+  &:hover {
+    color: $gpssa-gold !important;
+    background: $gpssa-gold-light !important;
+  }
+}
+
+// ── End (lang switcher + user avatar) ────────────────────────────────────────
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+// User avatar — styled like the GPSSA gold CTA button
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: $gpssa-gold;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  flex-shrink: 0;
+  font-family: 'Inter', 'Roboto', sans-serif;
+
+  &:hover {
+    background: $gpssa-gold-hover;
+    transform: scale(1.04);
+  }
+}
+
+// ── User menu panel ───────────────────────────────────────────────────────────
+::ng-deep .user-menu-panel {
+  .user-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: $text-dark;
+    cursor: default;
+    pointer-events: none;
+    font-family: 'Inter', 'Roboto', sans-serif;
+  }
+}
+
+// ── Tab Navigation ────────────────────────────────────────────────────────────
+// Clean white strip with GPSSA gold active underline — matches Ma'ashi nav
+.tab-nav {
+  background: #fff;
+  border-bottom: 1px solid $border;
+  padding: 0 24px;
+  flex-shrink: 0;
+
+  // Active tab ink bar: GPSSA gold
+  ::ng-deep .mdc-tab-indicator__content--underline {
+    border-color: $gpssa-gold !important;
+  }
+
+  // Active tab label
+  ::ng-deep .mdc-tab--active .mdc-tab__text-label {
+    color: $gpssa-gold !important;
+    font-weight: 600;
+  }
+
+  // Inactive tab label
+  ::ng-deep .mdc-tab__text-label {
+    color: $text-muted;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  // Tab ripple
+  ::ng-deep .mat-ripple-element {
+    background-color: rgba(124, 94, 36, 0.08) !important;
+  }
+}
+
+.tab-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-inline-end: 6px;
+  vertical-align: middle;
+}
+
+// ── Tab Content area ──────────────────────────────────────────────────────────
+.tab-panel {
+  flex: 1;
+  overflow: auto;
+}
+
+// ── Mobile Nav Backdrop + Drawer ──────────────────────────────────────────────
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 37, 40, 0.5);
+  z-index: 98;
+  animation: fade-in 0.2s ease;
+}
+
+.mobile-nav {
+  position: fixed;
+  top: 64px;
+  inset-inline-start: 0;
+  width: 288px;
+  max-width: 85vw;
+  height: calc(100vh - 64px);
+  background: #fff;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.12);
+  animation: slide-in 0.22s ease;
+  border-top: 2px solid $gpssa-gold;
+
+  .mobile-employer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $gpssa-gold;
+    background: $gpssa-gold-light;
+    border-radius: 8px;
+    margin: 0 12px 4px;
+    border: 1px solid $gpssa-gold-border;
+    font-family: 'Inter', 'Roboto', sans-serif;
+
+    mat-icon { font-size: 18px; width: 18px; height: 18px; color: $gpssa-gold; }
+    span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: calc(100% - 24px);
+    margin: 2px 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-dark;
+    justify-content: flex-start;
+    font-family: 'Inter', 'Roboto', sans-serif;
+
+    mat-icon { color: $text-muted; }
+
+    &:hover {
+      background: $gpssa-gold-light;
+      color: $gpssa-gold;
+      mat-icon { color: $gpssa-gold; }
+    }
+
+    &.switch {
+      color: $gpssa-gold;
+      font-weight: 600;
+      font-size: 13px;
+    }
+  }
+
+  mat-divider { margin: 8px 0; }
+}
+
+// ── Animations ────────────────────────────────────────────────────────────────
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 16px;
+    gap: 8px;
+    height: 56px;
+  }
+
+  .hamburger { display: inline-flex; }
+
+  .tab-nav { display: none; }
+
+  .employer-chip { max-width: 200px; }
+
+  .mobile-nav { top: 56px; height: calc(100vh - 56px); }
+}
+
+@media (max-width: 540px) {
+  .brand-name { display: none; }
+  .employer-chip { max-width: 140px; }
+}
+
+@media (max-width: 400px) {
+  .topbar-center { display: none; }
+}
+
+// ── RTL: slide mobile drawer from the right ───────────────────────────────────
+[dir='rtl'] .mobile-nav {
+  animation-name: slide-in-rtl;
+}
+
+@keyframes slide-in-rtl {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}

@@ -1,0 +1,552 @@
+.case-detail-page {
+  padding: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.page-loading,
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px;
+  gap: 16px;
+  color: #9e9e9e;
+
+  .error-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+  }
+}
+
+// ── Back button ─────────────────────────────────────────
+.back-btn {
+  margin-bottom: 16px;
+  color: #666;
+}
+
+// ── Header ──────────────────────────────────────────────
+.case-header {
+  margin-bottom: 24px;
+}
+
+.case-header-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.case-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #e8edf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: #1a3c6e;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.case-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a3c6e;
+  margin: 0 0 4px;
+}
+
+.case-subtitle {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sep { color: #ccc; }
+
+.stage-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #e8edf7;
+  color: #1a3c6e;
+}
+
+// ── Tabs ────────────────────────────────────────────────
+.detail-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 24px;
+}
+
+.detail-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 4px 4px 0 0;
+  transition: color 0.2s, border-color 0.2s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: #1a3c6e;
+    background: #f5f5f5;
+  }
+
+  &.tab-active {
+    color: #1a3c6e;
+    border-bottom-color: #1a3c6e;
+    font-weight: 600;
+  }
+}
+
+// ── Content Card ────────────────────────────────────────
+.detail-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.empty-text {
+  color: #9e9e9e;
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+
+// ── Field Grid ──────────────────────────────────────────
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}
+
+.field-value {
+  font-size: 0.9rem;
+  color: #222;
+  word-break: break-all;
+
+  &.mono {
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+}
+
+// ── Documents tab ────────────────────────────────────────
+.documents-card {
+  // Give the attachment component room to breathe inside the card.
+  padding-bottom: 28px;
+}
+
+.docs-readonly-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 0.875rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #9e9e9e;
+    flex-shrink: 0;
+  }
+}
+
+// ── History / Timeline ───────────────────────────────────
+
+.history-card {
+  padding-bottom: 8px;
+}
+
+.history-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px;
+  color: #b0b0b0;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    opacity: 0.5;
+  }
+
+  p { margin: 0; font-size: 0.9rem; }
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 16px;
+  position: relative;
+  padding-bottom: 28px;
+
+  &:last-child { padding-bottom: 8px; }
+}
+
+.tl-line {
+  grid-column: 1;
+  grid-row: 2;
+  width: 2px;
+  background: #e0e0e0;
+  justify-self: center;
+  min-height: 20px;
+}
+
+.tl-node {
+  grid-column: 1;
+  grid-row: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8edf7;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #1a3c6e;
+  }
+
+  // Action colour overrides
+  &.action-approve { background: #e8f5e9; mat-icon { color: #2e7d32; } }
+  &.action-submit  { background: #e3f2fd; mat-icon { color: #1565c0; } }
+  &.action-return  { background: #fff3e0; mat-icon { color: #e65100; } }
+  &.action-reject  { background: #fce4ec; mat-icon { color: #b71c1c; } }
+  &.action-claim   { background: #f3e5f5; mat-icon { color: #6a1b9a; } }
+  &.action-default { background: #f5f5f5; mat-icon { color: #757575; } }
+}
+
+.tl-body {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.tl-header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tl-action {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1a3c6e;
+
+  &.action-approve { color: #2e7d32; }
+  &.action-submit  { color: #1565c0; }
+  &.action-return  { color: #e65100; }
+  &.action-reject  { color: #b71c1c; }
+  &.action-claim   { color: #6a1b9a; }
+  &.action-default { color: #555; }
+}
+
+.tl-by {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #444;
+
+  &::before { content: 'by '; color: #999; font-weight: 400; }
+}
+
+.tl-time {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.tl-transition {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tl-state {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f0f0f0;
+  color: #555;
+  letter-spacing: 0.02em;
+
+  &.tl-state-to {
+    background: #e8edf7;
+    color: #1a3c6e;
+  }
+}
+
+.tl-arrow {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #bbb;
+}
+
+// ── Timeline notes bubble ─────────────────────────────────
+.tl-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 2px;
+  background: #f9f9f9;
+  border-left: 3px solid #e0e0e0;
+  border-radius: 0 6px 6px 0;
+  padding: 6px 10px;
+}
+
+.tl-notes-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #aaa;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tl-notes-text {
+  font-size: 0.82rem;
+  color: #555;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// ── Workflow Actions ─────────────────────────────────────
+.workflow-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #f0f0f0;
+
+  // Return button — amber tint
+  .btn-return {
+    color: #e65100;
+    border-color: #e65100;
+
+    &:hover { background: #fff3e0; }
+  }
+
+  // Reject button — red tint
+  .btn-reject {
+    color: #b71c1c;
+    border-color: #b71c1c;
+
+    &:hover { background: #fce4ec; }
+  }
+}
+
+// ── Inline action confirmation panel ─────────────────────
+.action-panel {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
+  animation: panel-in 0.15s ease;
+
+  // Per-action accent colours
+  &.panel-approve {
+    border-color: #a5d6a7;
+    background: #f1f8f1;
+    .panel-icon, .panel-title { color: #2e7d32; }
+  }
+
+  &.panel-return {
+    border-color: #ffcc80;
+    background: #fffbf5;
+    .panel-icon, .panel-title { color: #e65100; }
+  }
+
+  &.panel-reject {
+    border-color: #ef9a9a;
+    background: #fff5f5;
+    .panel-icon, .panel-title { color: #b71c1c; }
+  }
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.action-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.panel-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.panel-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+// ── Notes textarea ─────────────────────────────────────
+.notes-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.notes-optional {
+  font-weight: 400;
+  color: #999;
+  font-size: 0.78rem;
+}
+
+.notes-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #222;
+  background: #fff;
+  resize: vertical;
+  transition: border-color 0.15s;
+  min-height: 80px;
+
+  &:focus {
+    outline: none;
+    border-color: #1a3c6e;
+    box-shadow: 0 0 0 3px rgba(26, 60, 110, 0.08);
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  &::placeholder { color: #bbb; }
+}
+
+// ── Panel action buttons ─────────────────────────────────
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn-cancel-action { color: #666; }
+
+// Confirm button colour variants
+.btn-confirm-approve {
+  background-color: #2e7d32 !important;
+  color: #fff !important;
+}
+
+.btn-confirm-return {
+  background-color: #e65100 !important;
+  color: #fff !important;
+}
+
+.btn-confirm-reject {
+  background-color: #b71c1c !important;
+  color: #fff !important;
+}

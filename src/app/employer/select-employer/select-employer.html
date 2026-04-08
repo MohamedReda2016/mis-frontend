@@ -1,0 +1,110 @@
+<div class="page">
+  <!-- Topbar -->
+  <header class="topbar" role="banner">
+    <div class="topbar-start">
+      <img src="assets/gpssa-logo.svg" class="brand-logo" alt="GPSSA" />
+    </div>
+    <div class="topbar-end">
+      <app-lang-switcher />
+      <button class="user-avatar" [matMenuTriggerFor]="userMenu"
+        [attr.aria-label]="authService.currentUser()">
+        {{ userInitials() }}
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <div class="user-menu-header" mat-menu-item disabled>
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ authService.currentUser() }}</span>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="authService.logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ 'SELECT_EMPLOYER.LOGOUT' | translate }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </header>
+
+  <!-- Page heading -->
+  <div class="page-heading">
+    <h1 class="page-title">{{ 'SELECT_EMPLOYER.TITLE' | translate }}</h1>
+    <p class="page-subtitle">{{ 'SELECT_EMPLOYER.SUBTITLE' | translate }}</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>{{ 'SELECT_EMPLOYER.SEARCH_PLACEHOLDER' | translate }}</mat-label>
+      <!-- Dynamically switch icon side <mat-icon matPrefix class="search-icon">search</mat-icon> -->
+
+      <input
+        matInput
+        [value]="searchQuery()"
+        (input)="updateSearch($any($event.target).value)"
+        [dir]="isArabic ? 'rtl' : 'ltr'"
+        [placeholder]="'SELECT_EMPLOYER.SEARCH_PLACEHOLDER' | translate"
+      />
+      <mat-icon matSuffix class="search-icon">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+
+
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="centered" aria-live="polite">
+      <mat-spinner diameter="48" />
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <p class="error-msg" role="alert">{{ error()! | translate }}</p>
+  }
+
+  <!-- Grid -->
+  @if (!loading()) {
+    <div class="employer-grid" role="list">
+      @for (employer of filteredEmployers(); track employer.id) {
+        <article
+          class="employer-card"
+          role="listitem"
+          (click)="select(employer)"
+          (keydown.enter)="select(employer)"
+          (keydown.space)="select(employer)"
+          tabindex="0"
+          [attr.aria-label]="displayName(employer)"
+        >
+          <div class="card-top">
+            <span class="code-badge">{{ employer.code }}</span>
+            <span class="status-badge active">{{ 'SELECT_EMPLOYER.STATUS_ACTIVE' | translate }}</span>
+          </div>
+          <div class="card-body">
+            <p class="employer-name">{{ displayName(employer) }}</p>
+            @if (displaySubtitle(employer)) {
+              <p class="employer-subtitle">{{ displaySubtitle(employer) }}</p>
+            }
+          </div>
+          <div class="card-footer">
+            <button
+              mat-mini-fab
+              class="arrow-btn"
+              (click)="$event.stopPropagation(); select(employer)"
+              [attr.aria-label]="displayName(employer)"
+            >
+              <mat-icon class="mat-icon-rtl-mirror">arrow_forward</mat-icon>
+            </button>
+          </div>
+        </article>
+      }
+
+      @if (filteredEmployers().length === 0) {
+        <p class="no-results" role="status">{{ 'SELECT_EMPLOYER.NO_RESULTS' | translate }}</p>
+      }
+    </div>
+  }
+
+  <footer class="page-footer">
+    <p>{{ 'SELECT_EMPLOYER.FOOTER' | translate }}</p>
+  </footer>
+</div>

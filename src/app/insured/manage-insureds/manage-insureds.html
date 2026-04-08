@@ -1,0 +1,259 @@
+<div class="manage-page">
+
+  <!-- ── Page Header ── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h2 class="page-title">{{ 'MANAGE_INSUREDS.TITLE' | translate }}</h2>
+      <p class="page-subtitle">{{ 'MANAGE_INSUREDS.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button>
+        <mat-icon>upload</mat-icon>
+        {{ 'MANAGE_INSUREDS.BULK_SALARY_BTN' | translate }}
+      </button>
+      <button mat-raised-button color="primary" (click)="navigateToRegister()">
+        <mat-icon>person_add</mat-icon>
+        {{ 'MANAGE_INSUREDS.REGISTER_BTN' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Stat Cards (server-side totals — never change on filter) ── -->
+  @if (employerTotal() > 0 || !loading()) {
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-total">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">{{ employerTotal() | number }}</span>
+          <span class="stat-label">{{ 'MANAGE_INSUREDS.STAT_TOTAL' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-active">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value stat-value-active">{{ employerActive() | number }}</span>
+          <span class="stat-label">{{ 'MANAGE_INSUREDS.STAT_ACTIVE' | translate }}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-inactive">
+          <mat-icon>cancel</mat-icon>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value stat-value-inactive">{{ employerInactive() | number }}</span>
+          <span class="stat-label">{{ 'MANAGE_INSUREDS.STAT_INACTIVE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Table Card ── -->
+  <div class="table-card">
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <div class="toolbar-search">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          [placeholder]="'MANAGE_INSUREDS.FILTER_MEMBER_ID_PLACEHOLDER' | translate"
+          [value]="memberIdFilter()"
+          (input)="memberIdFilter.set($any($event.target).value)"
+        />
+        @if (memberIdFilter()) {
+          <button class="search-clear" (click)="memberIdFilter.set('')"
+            [attr.aria-label]="'MANAGE_INSUREDS.FILTER_CLEAR' | translate">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="toolbar-right">
+        <button
+          class="filter-toggle-btn"
+          [class.filter-toggle-active]="showFilters() || hasActiveFilters()"
+          (click)="showFilters.set(!showFilters())"
+          [matTooltip]="'MANAGE_INSUREDS.TOGGLE_FILTERS' | translate"
+        >
+          <mat-icon>tune</mat-icon>
+          {{ 'MANAGE_INSUREDS.FILTER_TITLE' | translate }}
+          @if (hasActiveFilters()) {
+            <span class="filter-dot"></span>
+          }
+        </button>
+
+        @if (hasActiveFilters()) {
+          <button class="clear-filters-btn" (click)="clearFilters()"
+            [matTooltip]="'MANAGE_INSUREDS.FILTER_CLEAR' | translate">
+            <mat-icon>filter_alt_off</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Collapsible Filter Panel -->
+    @if (showFilters()) {
+      <div class="filter-panel">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>{{ 'MANAGE_INSUREDS.FILTER_SALARY' | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            [placeholder]="'MANAGE_INSUREDS.FILTER_SALARY_PLACEHOLDER' | translate"
+            [value]="salaryFilter()"
+            (input)="salaryFilter.set(+$any($event.target).value || null)"
+          />
+          <mat-icon matSuffix>payments</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field filter-status">
+          <mat-label>{{ 'MANAGE_INSUREDS.FILTER_STATUS' | translate }}</mat-label>
+          <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+            <mat-option value="ALL">{{ 'MANAGE_INSUREDS.FILTER_STATUS_ALL' | translate }}</mat-option>
+            <mat-option value="ACTIVE">{{ 'MANAGE_INSUREDS.FILTER_STATUS_ACTIVE' | translate }}</mat-option>
+            <mat-option value="INACTIVE">{{ 'MANAGE_INSUREDS.FILTER_STATUS_INACTIVE' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    <!-- Result count bar -->
+    <div class="result-bar">
+      <span class="result-count">
+        {{ 'MANAGE_INSUREDS.SHOWING_COUNT' | translate: { filtered: totalElements(), total: employerTotal() } }}
+      </span>
+      @if (loading() && insureds().length > 0) {
+        <!-- Non-blocking inline spinner — visible during subsequent page/filter fetches -->
+        <mat-spinner diameter="16" class="inline-spinner" />
+      }
+    </div>
+
+    <!-- ── Initial full-page load ── -->
+    @if (loading() && insureds().length === 0) {
+      <div class="centered-spinner">
+        <mat-spinner diameter="36" />
+      </div>
+
+    <!-- ── Empty state ── -->
+    } @else if (!loading() && insureds().length === 0) {
+      <div class="empty-state" role="status">
+        <mat-icon>group_off</mat-icon>
+        <p>{{ 'MANAGE_INSUREDS.EMPTY_STATE' | translate }}</p>
+        @if (hasActiveFilters()) {
+          <button mat-stroked-button (click)="clearFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            {{ 'MANAGE_INSUREDS.FILTER_CLEAR' | translate }}
+          </button>
+        }
+      </div>
+
+    <!-- ── Data table ── -->
+    } @else {
+      <!-- Relative wrapper so the loading overlay stays scoped to the table area -->
+      <div class="table-area" [class.table-area-loading]="loading()">
+        @if (loading()) {
+          <div class="table-overlay" aria-hidden="true">
+            <mat-spinner diameter="32" />
+          </div>
+        }
+        <div class="table-wrapper">
+          <table class="insureds-table" role="table"
+            [attr.aria-label]="'MANAGE_INSUREDS.TITLE' | translate"
+            [attr.aria-busy]="loading()">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'MANAGE_INSUREDS.COL_MEMBER_ID' | translate }}</th>
+                <th scope="col">{{ 'MANAGE_INSUREDS.COL_JOIN_DATE' | translate }}</th>
+                <th scope="col">{{ 'MANAGE_INSUREDS.COL_END_DATE' | translate }}</th>
+                <th scope="col" class="col-sortable" (click)="cycleSalarySort()"
+                  [attr.aria-sort]="salarySort() === 'asc' ? 'ascending' : salarySort() === 'desc' ? 'descending' : 'none'">
+                  <span class="sort-header">
+                    {{ 'MANAGE_INSUREDS.COL_SALARY' | translate }}
+                    <span class="sort-icon" [class.sort-active]="salarySort() !== 'none'">
+                      @if (salarySort() === 'asc') {
+                        <mat-icon>arrow_upward</mat-icon>
+                      } @else if (salarySort() === 'desc') {
+                        <mat-icon>arrow_downward</mat-icon>
+                      } @else {
+                        <mat-icon>unfold_more</mat-icon>
+                      }
+                    </span>
+                  </span>
+                </th>
+                <th scope="col">{{ 'MANAGE_INSUREDS.COL_STATUS' | translate }}</th>
+                <th scope="col" class="col-actions">{{ 'MANAGE_INSUREDS.COL_ACTIONS' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- trackBy on the server-assigned id prevents full re-render on page change -->
+              @for (insured of insureds(); track insured.id) {
+                <tr>
+                  <td>
+                    <span class="member-id">{{ insured.memberId }}</span>
+                  </td>
+                  <td class="td-date">{{ insured.joiningDate | dateFormat }}</td>
+                  <td class="td-date">{{ insured.endDate ? (insured.endDate | dateFormat) : '—' }}</td>
+                  <td class="td-salary">
+                    <span class="salary-currency">{{ 'COMMON.CURRENCY' | translate }}</span>
+                    {{ insured.contributableSalary | number:'1.2-2' }}
+                  </td>
+                  <td>
+                    @if (insured.status === 'ACTIVE') {
+                      <span class="badge badge-active" role="status">
+                        <span class="badge-dot"></span>
+                        {{ 'MANAGE_INSUREDS.STATUS_ACTIVE' | translate }}
+                      </span>
+                    } @else {
+                      <span class="badge badge-inactive" role="status">
+                        <span class="badge-dot"></span>
+                        {{ 'MANAGE_INSUREDS.STATUS_INACTIVE' | translate }}
+                      </span>
+                    }
+                  </td>
+                  <td class="col-actions">
+                    @if (insured.status === 'ACTIVE') {
+                      <div class="inline-actions">
+                        <button mat-icon-button class="action-btn"
+                          [matTooltip]="'MANAGE_INSUREDS.ACTION_VIEW' | translate"
+                          (click)="viewProfile(insured)">
+                          <mat-icon>person</mat-icon>
+                        </button>
+                        <button mat-icon-button class="action-btn"
+                          [matTooltip]="'MANAGE_INSUREDS.ACTION_UPDATE_SALARY' | translate"
+                          (click)="updateSalary(insured)">
+                          <mat-icon>payments</mat-icon>
+                        </button>
+                        <button mat-icon-button class="action-btn action-btn-danger"
+                          [matTooltip]="'MANAGE_INSUREDS.ACTION_END_SERVICE' | translate"
+                          (click)="recordEndOfService(insured)">
+                          <mat-icon>exit_to_app</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <span class="no-actions">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination — driven entirely by server totalElements -->
+      <app-paging-bar
+        [totalItems]="totalElements()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </div>
+
+</div>

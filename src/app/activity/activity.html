@@ -1,0 +1,228 @@
+<div class="activity-page">
+
+  <div class="page-header">
+    <h2 class="page-title">{{ 'ACTIVITY.TITLE' | translate }}</h2>
+    <p class="page-subtitle">{{ 'ACTIVITY.SUBTITLE' | translate }}</p>
+  </div>
+
+  <!-- ── Queue Tabs ── -->
+  <div class="queue-tabs" role="tablist" [attr.aria-label]="'ACTIVITY.QUEUE_TABS' | translate">
+
+    @for (tab of allTabs; track tab) {
+      <button
+        role="tab"
+        class="queue-tab"
+        [class.tab-active]="activeTab() === tab"
+        [class.tab-terminal]="!queueMeta[tab].actionable"
+        [attr.aria-selected]="activeTab() === tab"
+        (click)="setTab(tab)"
+      >
+        <mat-icon>{{ queueMeta[tab].icon }}</mat-icon>
+        {{ queueMeta[tab].labelKey | translate }}
+        @if (!isLoading(tab) && taskCount(tab)) {
+          <span
+            class="tab-count"
+            [class.count-terminal]="!queueMeta[tab].actionable"
+            aria-hidden="true"
+          >{{ taskCount(tab) }}</span>
+        }
+      </button>
+    }
+
+  </div>
+
+  <!-- ── Content ── -->
+  @if (activeLoading()) {
+    <div class="queue-loading">
+      <mat-spinner diameter="40" />
+    </div>
+
+  } @else if (activeTasks().length === 0) {
+    <div class="queue-empty">
+      <mat-icon class="empty-icon">{{ isActiveMonitor() ? 'folder_open' : 'inbox' }}</mat-icon>
+      <p>{{ 'ACTIVITY.NO_TASKS' | translate }}</p>
+    </div>
+
+  } @else {
+
+    <!-- ── Filter bar ── -->
+    <div class="filter-bar" role="search">
+      <div class="filter-search-wrap">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input
+          class="filter-search-input"
+          type="search"
+          [value]="filterSearch()"
+          (input)="setFilterSearch($any($event.target).value)"
+          [placeholder]="'ACTIVITY.FILTER_SEARCH_PLACEHOLDER' | translate"
+          [attr.aria-label]="'ACTIVITY.FILTER_SEARCH_PLACEHOLDER' | translate"
+        />
+      </div>
+
+      <div class="filter-chips" role="group" [attr.aria-label]="'ACTIVITY.COL_SERVICE_TYPE' | translate">
+        @for (opt of serviceTypeOptions; track opt.value) {
+          <button
+            class="filter-chip"
+            [class.chip-active]="filterType() === opt.value"
+            (click)="setFilterType(opt.value)"
+            type="button"
+          >{{ opt.labelKey | translate }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Filter empty state ── -->
+    @if (filteredTasks().length === 0) {
+      <div class="queue-empty">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <p>{{ 'ACTIVITY.FILTER_EMPTY_STATE' | translate }}</p>
+        <button mat-button (click)="clearFilters()">{{ 'ACTIVITY.FILTER_CLEAR' | translate }}</button>
+      </div>
+    }
+
+    <!-- ── Work queue table (actionable: claim / open) ── -->
+    @if (!isActiveMonitor() && filteredTasks().length > 0) {
+      <div class="queue-table-wrap">
+        <table mat-table [dataSource]="filteredTasks()" class="queue-table">
+
+          <ng-container matColumnDef="serviceType">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_SERVICE_TYPE' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="service-badge" [class]="serviceTypeBadgeClass(t.workflowDefinition.name)">
+                {{ serviceTypeLabelKey(t.workflowDefinition.name) | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="businessKey">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_INSURED_ID' | translate }}</th>
+            <td mat-cell *matCellDef="let t" class="mono">{{ t.businessKey }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="currentState">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_STAGE' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="stage-badge">{{ t.currentState.key }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_STATUS' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              @if (!t.locked) {
+                <span class="status-chip chip-free">{{ 'ACTIVITY.STATUS_FREE' | translate }}</span>
+              } @else if (isClaimedByMe(t)) {
+                <span class="status-chip chip-mine">{{ 'ACTIVITY.STATUS_MINE' | translate }}</span>
+              } @else {
+                <span class="status-chip chip-claimed">{{ 'ACTIVITY.STATUS_CLAIMED' | translate }}</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="assignedTo">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_ASSIGNED_TO' | translate }}</th>
+            <td mat-cell *matCellDef="let t">{{ t.assignedToUser || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="submitted">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_SUBMITTED' | translate }}</th>
+            <td mat-cell *matCellDef="let t">{{ formatDate(t.createdAt) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let t">
+              @if (canClaim(t)) {
+                <button mat-stroked-button class="claim-btn"
+                  (click)="claim(t)"
+                  [disabled]="!!claiming()"
+                  [attr.aria-label]="'ACTIVITY.CLAIM' | translate">
+                  @if (claiming() === t.id) {
+                    <mat-spinner diameter="16" />
+                  } @else {
+                    <mat-icon>lock_open</mat-icon>
+                    {{ 'ACTIVITY.CLAIM' | translate }}
+                  }
+                </button>
+              } @else if (isClaimedByMe(t)) {
+                <button mat-flat-button color="primary" class="open-btn"
+                  (click)="openCase(t)"
+                  [attr.aria-label]="'ACTIVITY.OPEN' | translate">
+                  <mat-icon>open_in_new</mat-icon>
+                  {{ 'ACTIVITY.OPEN' | translate }}
+                </button>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns();"></tr>
+
+        </table>
+      </div>
+    }
+
+    <!-- ── Monitor queue table (terminal: read-only archive) ── -->
+    @if (isActiveMonitor() && filteredTasks().length > 0) {
+      <div class="queue-table-wrap">
+        <table mat-table [dataSource]="filteredTasks()" class="queue-table">
+
+          <ng-container matColumnDef="serviceType">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_SERVICE_TYPE' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="service-badge" [class]="serviceTypeBadgeClass(t.workflowDefinition.name)">
+                {{ serviceTypeLabelKey(t.workflowDefinition.name) | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="businessKey">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_INSURED_ID' | translate }}</th>
+            <td mat-cell *matCellDef="let t" class="mono">{{ t.businessKey }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="currentState">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_STAGE' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              <span class="stage-badge">{{ t.currentState.key }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Final outcome badge -->
+          <ng-container matColumnDef="finalStatus">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_OUTCOME' | translate }}</th>
+            <td mat-cell *matCellDef="let t">
+              @if (activeTab() === 'completed') {
+                <span class="outcome-badge badge-completed">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ 'ACTIVITY.OUTCOME_COMPLETED' | translate }}
+                </span>
+              } @else {
+                <span class="outcome-badge badge-rejected">
+                  <mat-icon>cancel</mat-icon>
+                  {{ 'ACTIVITY.OUTCOME_REJECTED' | translate }}
+                </span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="submitted">
+            <th mat-header-cell *matHeaderCellDef>{{ 'ACTIVITY.COL_SUBMITTED' | translate }}</th>
+            <td mat-cell *matCellDef="let t">{{ formatDate(t.createdAt) }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns();" class="row-terminal"
+            (click)="openCase(row)"
+            [attr.aria-label]="'ACTIVITY.OPEN' | translate"
+            tabindex="0"
+            (keydown.enter)="openCase(row)"
+          ></tr>
+
+        </table>
+      </div>
+    }
+
+  }
+
+</div>

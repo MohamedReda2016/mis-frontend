@@ -1,0 +1,536 @@
+// ── Theme tokens ──────────────────────────────────
+$navy:  #1A3C6E;
+$gold:  #C09A3A;
+$navy-light: #e8edf5;
+$gold-light: #fdf6e3;
+$border: #e5e7eb;
+$surface: #f9fafb;
+
+// ── Page shell ────────────────────────────────────
+.profile-page {
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ── Loading / Error ───────────────────────────────
+.page-loading,
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 100px 0;
+  color: #9ca3af;
+}
+
+.error-icon {
+  font-size: 52px;
+  width: 52px;
+  height: 52px;
+}
+
+// ── Back button ───────────────────────────────────
+.back-btn {
+  margin-bottom: 12px;
+  color: $navy;
+  font-size: 13px;
+  padding-inline-start: 0;
+}
+
+// ── Profile Header ────────────────────────────────
+.profile-header {
+  background: $navy;
+  border-radius: 14px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  color: #ffffff;
+}
+
+.header-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+  letter-spacing: 1px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+}
+
+.identity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name-en {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.name-ar {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Cairo', 'Roboto', sans-serif;
+  line-height: 1.3;
+}
+
+.identity-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.member-id-badge {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.status-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.status-active .dot   { background: #4ade80; }
+  &.status-inactive .dot { background: #94a3b8; }
+}
+
+.meta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+
+  .meta-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.meta-sep { margin: 0 4px; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.btn-gold {
+  background: $gold !important;
+  color: #ffffff !important;
+}
+
+.btn-navy-outline {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+}
+
+// ── Banners ───────────────────────────────────────
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 12px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+
+  &.banner-amber {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    mat-icon { color: #f59e0b; }
+  }
+
+  &.banner-orange {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    mat-icon { color: #ea580c; }
+  }
+}
+
+.banner-link {
+  margin-inline-start: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+}
+
+// ── Profile Layout (vertical tabs) ───────────────
+.profile-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+// ── Tab Sidebar ───────────────────────────────────
+.tab-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid $border;
+  overflow: hidden;
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 18px;
+  background: none;
+  border: none;
+  border-inline-start: 3px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: start;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(.tab-active) {
+    background: $surface;
+    color: $navy;
+  }
+
+  &.tab-active {
+    border-inline-start-color: $navy;
+    background: $navy-light;
+    color: $navy;
+    font-weight: 600;
+
+    .tab-icon { color: $navy; }
+  }
+
+  & + & {
+    border-top: 1px solid $border;
+  }
+}
+
+.tab-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.tab-label { flex: 1; }
+
+.tab-count {
+  background: $navy;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+
+  .tab-active & { background: $gold; }
+}
+
+// ── Tab Content ───────────────────────────────────
+.tab-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Content Cards ─────────────────────────────────
+.content-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid $border;
+  padding: 24px 28px;
+
+  &.card-highlighted {
+    border-color: $gold;
+    background: $gold-light;
+  }
+}
+
+.card-title {
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $border;
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid $border;
+  margin: 16px 0;
+}
+
+// ── Fields Grid ───────────────────────────────────
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+
+  &.fields-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 700px) { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 580px) { grid-template-columns: 1fr; }
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+
+  &.mono { font-variant-numeric: tabular-nums; }
+  &.arabic { font-family: 'Cairo', 'Roboto', sans-serif; }
+}
+
+// ── Name Group Heading ────────────────────────────
+.name-group-heading {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// ── Status Chips (inside card) ────────────────────
+.status-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+
+  &.chip-active   { background: #dcfce7; color: #15803d; }
+  &.chip-inactive { background: #f1f5f9; color: #64748b; }
+}
+
+// ── Salary Breakdown ──────────────────────────────
+.salary-breakdown {
+  max-width: 460px;
+}
+
+.salary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #374151;
+
+  &.salary-total {
+    font-weight: 700;
+    font-size: 15px;
+    color: #111827;
+  }
+}
+
+.sal-label { color: #4b5563; }
+.sal-value {
+  font-variant-numeric: tabular-nums;
+
+  &.total { font-size: 16px; color: $navy; }
+}
+
+.sal-divider {
+  border: none;
+  border-top: 1px solid $border;
+  margin: 8px 0;
+}
+
+// ── Data Tables ───────────────────────────────────
+.data-table { width: 100%; }
+
+.doc-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.doc-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-variant-numeric: tabular-nums;
+
+  &:hover { color: $gold; }
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: $navy-light; }
+}
+
+// ── Status Badges ─────────────────────────────────
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+
+  &.badge-submitted    { background: #dbeafe; color: #1e40af; }
+  &.badge-under-review { background: #fef3c7; color: #92400e; }
+  &.badge-approved     { background: #d1fae5; color: #065f46; }
+  &.badge-returned     { background: #fee2e2; color: #991b1b; }
+  &.badge-completed    { background: #e8edf5; color: $navy; }
+  &.badge-open         { background: #e0e7ff; color: #3730a3; }
+}
+
+// ── Salary History ────────────────────────────────
+.salary-current {
+  font-weight: 700;
+  color: $navy;
+}
+
+.current-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+// ── Empty State ───────────────────────────────────
+.empty-text {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 4px 0 0;
+  font-style: italic;
+}
+
+// ── Responsive ───────────────────────────────────
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+  }
+
+  .tab-sidebar {
+    width: 100%;
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+
+    .tab-item {
+      border-inline-start: none;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      padding: 10px 14px;
+
+      &.tab-active { border-bottom-color: $navy; border-inline-start-color: transparent; }
+    }
+
+    .tab-item + .tab-item { border-top: none; border-inline-start: 1px solid $border; }
+  }
+
+  .profile-page { padding: 16px; }
+}

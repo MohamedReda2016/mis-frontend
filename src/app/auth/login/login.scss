@@ -1,0 +1,174 @@
+// ── UAE / GPSSA design tokens ────────────────────────────────────────────────
+$gpssa-gold:       #7c5e24;
+$gpssa-gold-hover: #5e4718;
+$gpssa-gold-light: #f5e6c8;
+$gpssa-warm-bg:    #f3f0ea;   // warm beige — matching GPSSA page sections
+$gpssa-border:     #e8e2d8;
+$gpssa-text:       #1a1e21;
+$gpssa-muted:      #6b7280;
+$uae-black:        #232528;
+
+// ── Full-page layout ─────────────────────────────────────────────────────────
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $gpssa-warm-bg;
+}
+
+// ── Top government banner ────────────────────────────────────────────────────
+// Matches the GPSSA site 3-px gold stripe at the very top of the page
+.gov-banner {
+  height: 4px;
+  background: linear-gradient(90deg, $gpssa-gold 0%, #ca9a2c 50%, $gpssa-gold 100%);
+  flex-shrink: 0;
+}
+
+// ── Page header: logo row ────────────────────────────────────────────────────
+.login-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 68px;
+  background: #ffffff;
+  border-bottom: 1px solid $gpssa-border;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.header-logo {
+  height: 44px;
+  width: auto;
+}
+
+.header-gov-logo {
+  height: 40px;
+  width: auto;
+  opacity: 0.85;
+}
+
+// ── Center content ────────────────────────────────────────────────────────────
+.login-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+// ── Login card ────────────────────────────────────────────────────────────────
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid $gpssa-border;
+  box-shadow:
+    0 4px 24px rgba(124, 94, 36, 0.08),
+    0 1px 4px  rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+// ── Card header strip ─────────────────────────────────────────────────────────
+.card-header {
+  background: $gpssa-gold;
+  padding: 28px 32px 24px;
+  text-align: center;
+}
+
+.card-header-title {
+  margin: 0 0 4px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.card-header-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 400;
+}
+
+// ── Card body ─────────────────────────────────────────────────────────────────
+.card-body {
+  padding: 28px 32px 32px;
+}
+
+.full-width {
+  width: 100%;
+  display: block;
+}
+
+mat-form-field {
+  margin-bottom: 4px;
+}
+
+// ── Submit button ─────────────────────────────────────────────────────────────
+.submit-btn {
+  margin-top: 16px;
+  height: 48px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  border-radius: 8px !important;
+  transition: background 0.15s !important;
+
+  &:hover:not([disabled]) {
+    background: $gpssa-gold-hover !important;
+  }
+}
+
+// ── Error message ─────────────────────────────────────────────────────────────
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #9f1239;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.login-footer {
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 12px;
+  color: $gpssa-muted;
+  flex-shrink: 0;
+
+  a {
+    color: $gpssa-gold;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 480px) {
+  .login-header { padding: 0 16px; }
+
+  .login-body { padding: 24px 16px; }
+
+  .card-header { padding: 22px 20px 18px; }
+
+  .card-body { padding: 20px 20px 24px; }
+
+  .card-header-title { font-size: 17px; }
+}

@@ -1,0 +1,203 @@
+<div class="salary-update-page">
+
+  @if (initLoading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="48" />
+    </div>
+
+  } @else if (!insured()) {
+    <div class="page-error">
+      <mat-icon class="error-icon">person_off</mat-icon>
+      <p>{{ 'INSURED_PROFILE.NOT_FOUND' | translate }}</p>
+      <button mat-stroked-button (click)="navigateBack()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'INSURED_PROFILE.BACK' | translate }}
+      </button>
+    </div>
+
+  } @else {
+    @let i = insured()!;
+
+    <!-- Back -->
+    <button mat-button class="back-btn" (click)="navigateBack()">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'INSURED_PROFILE.BACK' | translate }}
+    </button>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">{{ 'UPDATE_SALARY.TITLE' | translate }}</h1>
+        <p class="page-subtitle">{{ 'UPDATE_SALARY.SUBTITLE' | translate: { memberId: i.memberId } }}</p>
+      </div>
+    </div>
+
+    <!-- Current Salary Card (read-only) -->
+    <div class="current-salary-card">
+      <div class="current-salary-header">
+        <span class="current-salary-label">{{ 'UPDATE_SALARY.CURRENT_SALARY' | translate }}</span>
+        @if (i.joiningDate) {
+          <span class="current-salary-effective">
+            {{ 'UPDATE_SALARY.EFFECTIVE' | translate }}: {{ i.joiningDate | date:'dd/MM/yyyy' }}
+          </span>
+        }
+      </div>
+      <div class="current-salary-rows">
+        <div class="cs-row">
+          <span>{{ 'REGISTER_INSURED.BASIC_SALARY' | translate }}</span>
+          <span class="cs-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.basicSalary | number:'1.2-2' }}</span>
+        </div>
+        @if (i.childrenAllowance) {
+          <div class="cs-row">
+            <span>{{ 'REGISTER_INSURED.CHILDREN_ALLOWANCE' | translate }}</span>
+            <span class="cs-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.childrenAllowance | number:'1.2-2' }}</span>
+          </div>
+        }
+        @if (i.complementaryAllowance) {
+          <div class="cs-row">
+            <span>{{ 'REGISTER_INSURED.COMPLEMENTARY_ALLOWANCE' | translate }}</span>
+            <span class="cs-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.complementaryAllowance | number:'1.2-2' }}</span>
+          </div>
+        }
+        @if (i.otherAllowance) {
+          <div class="cs-row">
+            <span>{{ 'REGISTER_INSURED.OTHER_ALLOWANCE' | translate }}</span>
+            <span class="cs-value">{{ 'COMMON.CURRENCY' | translate }} {{ i.otherAllowance | number:'1.2-2' }}</span>
+          </div>
+        }
+        <hr class="cs-divider" />
+        <div class="cs-row cs-total">
+          <span>{{ 'UPDATE_SALARY.CONTRIBUTABLE_SALARY' | translate }}</span>
+          <span class="cs-value total">{{ 'COMMON.CURRENCY' | translate }} {{ i.contributableSalary | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" class="form-card" (ngSubmit)="submit()">
+      <h2 class="section-title">{{ 'UPDATE_SALARY.NEW_SALARY_DETAILS' | translate }}</h2>
+      <mat-divider class="section-divider" />
+
+      <!-- Effective Date -->
+      <div class="form-field-row">
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>{{ 'UPDATE_SALARY.EFFECTIVE_DATE' | translate }} *</mat-label>
+          <input matInput [matDatepicker]="datePicker" formControlName="effectiveDate" />
+          <mat-datepicker-toggle matIconSuffix [for]="datePicker" />
+          <mat-datepicker #datePicker />
+          <mat-hint>{{ 'UPDATE_SALARY.EFFECTIVE_DATE_HINT' | translate }}</mat-hint>
+          @if (form.controls.effectiveDate.touched && form.controls.effectiveDate.hasError('required')) {
+            <mat-error>{{ 'UPDATE_SALARY.ERROR_EFFECTIVE_REQUIRED' | translate }}</mat-error>
+          } @else if (form.controls.effectiveDate.hasError('minDate')) {
+            <mat-error>{{ 'UPDATE_SALARY.ERROR_BEFORE_JOINING' | translate: { date: i.joiningDate } }}</mat-error>
+          } @else if (form.controls.effectiveDate.hasError('duplicateDate')) {
+            <mat-error>{{ 'UPDATE_SALARY.ERROR_DUPLICATE_DATE' | translate }}</mat-error>
+          } @else if (form.controls.effectiveDate.hasError('lockedPeriod')) {
+            <mat-error>{{ 'UPDATE_SALARY.ERROR_LOCKED_PERIOD' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Salary Fields (dynamic based on employer config) -->
+      <div class="form-fields-grid">
+        @for (comp of salaryComponents(); track comp.componentKey) {
+          @if (comp.enabled) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ componentLabel(comp.componentKey) }}
+                @if (comp.componentKey === 'BASIC_SALARY') { * }
+              </mat-label>
+              @if (comp.componentKey === 'BASIC_SALARY') {
+                <input matInput type="number" formControlName="basicSalary" min="0.01" step="0.01" />
+              } @else if (comp.componentKey === 'CHILDREN_ALLOWANCE') {
+                <input matInput type="number" formControlName="childrenAllowance" min="0" step="0.01" />
+              } @else if (comp.componentKey === 'COMPLEMENTARY_ALLOWANCE') {
+                <input matInput type="number" formControlName="complementaryAllowance" min="0" step="0.01" />
+              } @else if (comp.componentKey === 'OTHER_ALLOWANCE') {
+                <input matInput type="number" formControlName="otherAllowance" min="0" step="0.01" />
+              }
+              <span matTextSuffix class="currency-suffix">{{ 'COMMON.CURRENCY' | translate }}</span>
+              @if (comp.componentKey === 'BASIC_SALARY' && form.controls.basicSalary.touched && form.controls.basicSalary.invalid) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_BASIC_SALARY' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          }
+        }
+      </div>
+
+      <!-- Live Contributable Breakdown -->
+      <div class="breakdown-card">
+        <h3 class="breakdown-title">{{ 'UPDATE_SALARY.BREAKDOWN_TITLE' | translate }}</h3>
+        <div class="breakdown-rows">
+          @for (row of contributableBreakdown(); track row.comp.componentKey) {
+            @if (row.comp.enabled) {
+              <div class="breakdown-row">
+                <span class="br-label">{{ componentLabel(row.comp.componentKey) }}</span>
+                <span class="br-calc">
+                  {{ 'COMMON.CURRENCY' | translate }} {{ row.value | number:'1.2-2' }}
+                  &times; {{ row.comp.percentage }}%
+                  = {{ 'COMMON.CURRENCY' | translate }} {{ row.contribution | number:'1.2-2' }}
+                </span>
+              </div>
+            }
+          }
+          <hr class="br-divider" />
+          <div class="breakdown-row breakdown-new-total">
+            <span>{{ 'UPDATE_SALARY.NEW_CONTRIBUTABLE' | translate }}</span>
+            <span class="br-total">{{ 'COMMON.CURRENCY' | translate }} {{ newContributable() | number:'1.2-2' }}</span>
+          </div>
+          <div class="breakdown-row breakdown-prev">
+            <span>{{ 'UPDATE_SALARY.PREV_CONTRIBUTABLE' | translate }}</span>
+            <span>{{ 'COMMON.CURRENCY' | translate }} {{ previousContributable() | number:'1.2-2' }}</span>
+          </div>
+          @if (salaryDiff() !== 0) {
+            <div class="breakdown-row breakdown-diff"
+              [class.diff-positive]="salaryDiff() > 0"
+              [class.diff-negative]="salaryDiff() < 0">
+              <span>{{ 'UPDATE_SALARY.CHANGE' | translate }}</span>
+              <span>
+                {{ salaryDiff() > 0 ? '▲' : '▼' }}
+                {{ 'COMMON.CURRENCY' | translate }} {{ (salaryDiff() < 0 ? -salaryDiff() : salaryDiff()) | number:'1.2-2' }}
+                ({{ salaryDiff() > 0 ? '+' : '' }}{{ salaryDiffPercent() }}%)
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="attachment-wrapper">
+        <app-attachment-upload
+          [draftRequestId]="draftRequestId"
+          serviceType="UpdateSalary"
+          [uploadedBy]="currentUser()"
+        />
+      </div>
+
+      <!-- Notes -->
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>{{ 'UPDATE_SALARY.NOTES' | translate }} *</mat-label>
+        <textarea matInput formControlName="notes" rows="3"
+          [placeholder]="'UPDATE_SALARY.NOTES_PLACEHOLDER' | translate"
+          maxlength="500"></textarea>
+        <mat-hint align="end">{{ notesLength() }} / 500</mat-hint>
+        @if (form.controls.notes.touched && form.controls.notes.hasError('required')) {
+          <mat-error>{{ 'UPDATE_SALARY.ERROR_NOTES_REQUIRED' | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" mat-stroked-button (click)="navigateBack()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            {{ 'UPDATE_SALARY.SAVE' | translate }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

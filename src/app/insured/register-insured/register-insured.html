@@ -1,0 +1,432 @@
+<div class="register-page" [class.embedded]="!isCreate()">
+
+  <!-- ── Page Header ── -->
+  @if (isCreate()) {
+    <div class="page-header">
+      <button class="back-btn" mat-icon-button (click)="navigateBack()"
+        [attr.aria-label]="'REGISTER_INSURED.BACK' | translate">
+        <mat-icon>{{ isRtl() ? 'arrow_forward' : 'arrow_back' }}</mat-icon>
+      </button>
+      <div class="page-header-text">
+        <h2 class="page-title">{{ 'REGISTER_INSURED.TITLE' | translate }}</h2>
+        <p class="page-subtitle">{{ 'REGISTER_INSURED.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- ── Init loading ── -->
+  @if (initLoading()) {
+    <div class="init-loading">
+      <mat-spinner diameter="44" />
+      <p>{{ 'REGISTER_INSURED.LOADING' | translate }}</p>
+    </div>
+  } @else {
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-body" novalidate>
+
+      <!-- ════════════════════════════════════════════
+           SECTION 1 — General Details
+      ════════════════════════════════════════════ -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-badge">1</span>
+          <mat-icon class="section-icon">badge</mat-icon>
+          <div>
+            <h3 class="section-title">{{ 'REGISTER_INSURED.SECTION_A' | translate }}</h3>
+            <p class="section-desc">{{ 'REGISTER_INSURED.SECTION_A_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+
+          @if (isCreate()) {
+            <!-- No strategy warning -->
+            @if (!strategy) {
+              <div class="alert alert-warn" role="alert">
+                <mat-icon>warning_amber</mat-icon>
+                <span>{{ 'REGISTER_INSURED.NO_STRATEGY_WARNING' | translate }}</span>
+              </div>
+            }
+
+            <!-- MANUAL_PREFIX strategy -->
+            @if (strategy === 'MANUAL_PREFIX') {
+              <div class="field-block">
+                <label class="field-label">
+                  {{ 'REGISTER_INSURED.EMPLOYEE_ID' | translate }}
+                  <span class="required-star">*</span>
+                </label>
+                <div class="composite-field">
+                  <span class="composite-prefix">{{ employerCode }}</span>
+                  <mat-form-field appearance="outline" class="composite-input" subscriptSizing="dynamic">
+                    <input
+                      matInput
+                      formControlName="memberIdSuffix"
+                      inputmode="numeric"
+                      [placeholder]="'REGISTER_INSURED.EMPLOYEE_ID_PLACEHOLDER' | translate"
+                    />
+                    @if (form.controls.memberIdSuffix.hasError('required') && form.controls.memberIdSuffix.touched) {
+                      <mat-error>{{ 'REGISTER_INSURED.ERROR_MEMBER_ID_REQUIRED' | translate }}</mat-error>
+                    } @else if (form.controls.memberIdSuffix.hasError('pattern') && form.controls.memberIdSuffix.touched) {
+                      <mat-error>{{ 'REGISTER_INSURED.ERROR_MEMBER_ID_PATTERN' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+                @if (memberIdDuplicateError()) {
+                  <p class="field-error-msg" role="alert">{{ 'REGISTER_INSURED.ERROR_DUPLICATE' | translate }}</p>
+                }
+                <p class="field-hint-msg">
+                  {{ 'REGISTER_INSURED.EMPLOYEE_ID_FORMAT_HINT' | translate: { code: employerCode } }}
+                </p>
+              </div>
+            }
+
+            <!-- EMIRATES_ID strategy -->
+            @if (strategy === 'EMIRATES_ID') {
+              <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+                <mat-label>{{ 'REGISTER_INSURED.EMIRATES_ID' | translate }} *</mat-label>
+                <mat-icon matPrefix class="field-prefix-icon">fingerprint</mat-icon>
+                <input matInput formControlName="emiratesId"
+                  [placeholder]="'REGISTER_INSURED.EMIRATES_ID_PLACEHOLDER' | translate" />
+                <mat-hint>{{ 'REGISTER_INSURED.EMIRATES_ID_READONLY_HINT' | translate }}</mat-hint>
+                @if (form.controls.emiratesId.hasError('required') && form.controls.emiratesId.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_EMIRATES_ID' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            }
+
+          } @else {
+            <!-- Readonly member ID -->
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>{{ 'REGISTER_INSURED.MEMBER_ID' | translate }}</mat-label>
+              <mat-icon matPrefix class="field-prefix-icon">badge</mat-icon>
+              <input matInput formControlName="memberIdSuffix" />
+            </mat-form-field>
+          }
+
+          <!-- Date row -->
+          <div class="form-grid-2">
+            <mat-form-field appearance="outline" floatLabel="always">
+              <mat-label>{{ 'REGISTER_INSURED.DOB' | translate }} @if (isCreate()) { * }</mat-label>
+              <mat-icon matPrefix class="field-prefix-icon">cake</mat-icon>
+              <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth"
+                     [min]="minDob" [max]="maxDob"
+                     [attr.aria-label]="'REGISTER_INSURED.DOB' | translate" />
+              @if (isCreate()) {
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker" />
+              }
+              <mat-datepicker #dobPicker startView="multi-year" />
+              @if (form.controls.dateOfBirth.hasError('required') && form.controls.dateOfBirth.touched) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_DOB_REQUIRED' | translate }}</mat-error>
+              } @else if (form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_DOB' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" floatLabel="always">
+              <mat-label>{{ 'REGISTER_INSURED.JOINING_DATE' | translate }} @if (isCreate()) { * }</mat-label>
+              <mat-icon matPrefix class="field-prefix-icon">event</mat-icon>
+              <input matInput [matDatepicker]="joinPicker" formControlName="joiningDate"
+                     [max]="today"
+                     [attr.aria-label]="'REGISTER_INSURED.JOINING_DATE' | translate" />
+              @if (isCreate()) {
+                <mat-datepicker-toggle matIconSuffix [for]="joinPicker" />
+              }
+              <mat-datepicker #joinPicker />
+              @if (form.controls.joiningDate.hasError('required') && form.controls.joiningDate.touched) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_JOINING_REQUIRED' | translate }}</mat-error>
+              } @else if (form.controls.joiningDate.invalid && form.controls.joiningDate.touched) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_JOINING_DATE' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           SECTION 2 — Personal Details
+      ════════════════════════════════════════════ -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-badge section-badge--2">2</span>
+          <mat-icon class="section-icon">person</mat-icon>
+          <div>
+            <h3 class="section-title">{{ 'REGISTER_INSURED.SECTION_B' | translate }}</h3>
+            <p class="section-desc">{{ 'REGISTER_INSURED.SECTION_B_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+
+          <!-- Arabic Name Group -->
+          <div class="name-group">
+            <div class="name-group-header">
+              <span class="lang-badge lang-badge--ar">AR عربي</span>
+              <span class="name-group-title">{{ 'REGISTER_INSURED.ARABIC_NAME_GROUP' | translate }}</span>
+            </div>
+            <div class="form-grid-3" dir="rtl">
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.FIRST_NAME_AR' | translate }}
+                  @if (isCreate() && isMandatory('first_name_ar')) { * }
+                </mat-label>
+                <input matInput formControlName="firstNameAr" />
+                @if (form.controls.firstNameAr.hasError('required') && form.controls.firstNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_REQUIRED' | translate }}</mat-error>
+                } @else if (form.controls.firstNameAr.hasError('arabicOnly') && form.controls.firstNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_ONLY' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.MIDDLE_NAME_AR' | translate }}
+                  @if (isCreate() && isMandatory('middle_name_ar')) { * }
+                </mat-label>
+                <input matInput formControlName="middleNameAr" />
+                @if (form.controls.middleNameAr.hasError('required') && form.controls.middleNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_REQUIRED' | translate }}</mat-error>
+                } @else if (form.controls.middleNameAr.hasError('arabicOnly') && form.controls.middleNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_ONLY' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.LAST_NAME_AR' | translate }}
+                  @if (isCreate() && isMandatory('last_name_ar')) { * }
+                </mat-label>
+                <input matInput formControlName="lastNameAr" />
+                @if (form.controls.lastNameAr.hasError('required') && form.controls.lastNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_REQUIRED' | translate }}</mat-error>
+                } @else if (form.controls.lastNameAr.hasError('arabicOnly') && form.controls.lastNameAr.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_ARABIC_ONLY' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- English Name Group -->
+          <div class="name-group name-group--spaced">
+            <div class="name-group-header">
+              <span class="lang-badge lang-badge--en">EN</span>
+              <span class="name-group-title">{{ 'REGISTER_INSURED.ENGLISH_NAME_GROUP' | translate }}</span>
+            </div>
+            <div class="form-grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.FIRST_NAME_EN' | translate }}
+                  @if (isCreate() && isMandatory('first_name_en')) { * }
+                </mat-label>
+                <input matInput formControlName="firstNameEn" />
+                @if (form.controls.firstNameEn.hasError('required') && form.controls.firstNameEn.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_REQUIRED' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.MIDDLE_NAME_EN' | translate }}
+                  @if (isCreate() && isMandatory('middle_name_en')) { * }
+                </mat-label>
+                <input matInput formControlName="middleNameEn" />
+                @if (form.controls.middleNameEn.hasError('required') && form.controls.middleNameEn.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_REQUIRED' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'REGISTER_INSURED.LAST_NAME_EN' | translate }}
+                  @if (isCreate() && isMandatory('last_name_en')) { * }
+                </mat-label>
+                <input matInput formControlName="lastNameEn" />
+                @if (form.controls.lastNameEn.hasError('required') && form.controls.lastNameEn.touched) {
+                  <mat-error>{{ 'REGISTER_INSURED.ERROR_REQUIRED' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           SECTION 3 — Salary Details
+      ════════════════════════════════════════════ -->
+      <div class="form-section">
+        <div class="section-header">
+          <span class="section-badge section-badge--3">3</span>
+          <mat-icon class="section-icon">payments</mat-icon>
+          <div>
+            <h3 class="section-title">{{ 'REGISTER_INSURED.SECTION_C' | translate }}</h3>
+            <p class="section-desc">{{ 'REGISTER_INSURED.SECTION_C_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="section-body">
+          <div class="form-grid-2">
+            <!-- Basic Salary — always shown -->
+            <mat-form-field appearance="outline" floatLabel="always">
+              <mat-label>{{ 'REGISTER_INSURED.BASIC_SALARY' | translate }} @if (isCreate()) { * }</mat-label>
+              <mat-icon matPrefix class="field-prefix-icon">account_balance_wallet</mat-icon>
+              <input matInput type="number" min="0" step="0.01" formControlName="basicSalary" class="numeric-input" />
+              <span matSuffix class="currency-suffix">{{ 'COMMON.CURRENCY' | translate }}</span>
+              @if (form.controls.basicSalary.invalid && form.controls.basicSalary.touched) {
+                <mat-error>{{ 'REGISTER_INSURED.ERROR_BASIC_SALARY' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Optional allowances -->
+            @for (comp of salaryComponents(); track comp.componentKey) {
+              @if (comp.componentKey !== 'BASIC_SALARY' && comp.enabled) {
+                <mat-form-field appearance="outline" floatLabel="always">
+                  <mat-label>{{ componentLabel(comp.componentKey) }}</mat-label>
+                  <mat-icon matPrefix class="field-prefix-icon">add_card</mat-icon>
+                  @if (comp.componentKey === 'CHILDREN_ALLOWANCE') {
+                    <input matInput type="number" min="0" step="0.01" formControlName="childrenAllowance" class="numeric-input" />
+                  } @else if (comp.componentKey === 'COMPLEMENTARY_ALLOWANCE') {
+                    <input matInput type="number" min="0" step="0.01" formControlName="complementaryAllowance" class="numeric-input" />
+                  } @else if (comp.componentKey === 'OTHER_ALLOWANCE') {
+                    <input matInput type="number" min="0" step="0.01" formControlName="otherAllowance" class="numeric-input" />
+                  }
+                  <span matSuffix class="currency-suffix">{{ 'COMMON.CURRENCY' | translate }}</span>
+                </mat-form-field>
+              }
+            }
+          </div>
+
+          <!-- Contributable Salary Breakdown -->
+          <div class="breakdown-card" aria-live="polite">
+            <div class="breakdown-header">
+              <mat-icon>calculate</mat-icon>
+              <span>{{ 'REGISTER_INSURED.BREAKDOWN_TITLE' | translate }}</span>
+            </div>
+            <div class="breakdown-rows">
+              @for (row of contributableBreakdown(); track row.comp.componentKey) {
+                <div class="breakdown-row">
+                  <span class="breakdown-label">{{ componentLabel(row.comp.componentKey) }}</span>
+                  <span class="breakdown-value">{{ 'COMMON.CURRENCY' | translate }} {{ row.value | number:'1.2-2' }}</span>
+                  <span class="breakdown-arrow">×</span>
+                  <span class="breakdown-pct">{{ row.comp.percentage }}%</span>
+                  <span class="breakdown-eq">=</span>
+                  <span class="breakdown-result">{{ 'COMMON.CURRENCY' | translate }} {{ row.contribution | number:'1.2-2' }}</span>
+                </div>
+              }
+            </div>
+            <div class="breakdown-total">
+              <span class="breakdown-total-label">{{ 'REGISTER_INSURED.BREAKDOWN_TOTAL' | translate }}</span>
+              <span class="breakdown-total-amount">
+                {{ 'COMMON.CURRENCY' | translate }} {{ totalContributable() | number:'1.2-2' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════
+           SECTION 4 — Notes (create only)
+      ════════════════════════════════════════════ -->
+      @if (isCreate()) {
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-badge section-badge--4">4</span>
+            <mat-icon class="section-icon">notes</mat-icon>
+            <div>
+              <h3 class="section-title">{{ 'REGISTER_INSURED.NOTES_SECTION' | translate }}</h3>
+              <p class="section-desc">{{ 'REGISTER_INSURED.NOTES_SECTION_DESC' | translate }}</p>
+            </div>
+          </div>
+          <div class="section-body">
+            <mat-form-field appearance="outline" floatLabel="always" class="full-width">
+              <mat-label>{{ 'REGISTER_INSURED.NOTES_LABEL' | translate }}</mat-label>
+              <mat-icon matPrefix class="field-prefix-icon">edit_note</mat-icon>
+              <textarea
+                matInput
+                formControlName="notes"
+                rows="3"
+                [placeholder]="'REGISTER_INSURED.NOTES_PLACEHOLDER' | translate"
+              ></textarea>
+              <mat-hint>{{ 'REGISTER_INSURED.NOTES_HINT' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+      }
+
+      <!-- ════════════════════════════════════════════
+           SECTION 5 — Attachments (create only)
+      ════════════════════════════════════════════ -->
+      @if (isCreate()) {
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-badge section-badge--5">5</span>
+            <mat-icon class="section-icon">attach_file</mat-icon>
+            <div>
+              <h3 class="section-title">{{ 'REGISTER_INSURED.SECTION_D' | translate }}</h3>
+              <p class="section-desc">{{ 'REGISTER_INSURED.SECTION_D_DESC' | translate }}</p>
+            </div>
+          </div>
+          <div class="section-body">
+            <app-attachment-upload
+              [draftRequestId]="draftRequestId"
+              serviceType="InsuredRegistration"
+              [uploadedBy]="authService.currentUser() ?? undefined"
+            />
+          </div>
+        </div>
+      }
+
+      <!-- ════════════════════════════════════════════
+           Sticky Form Actions
+      ════════════════════════════════════════════ -->
+      <div class="form-actions-bar">
+        <div class="form-actions-inner">
+          @if (isCreate()) {
+            <button type="button" mat-stroked-button class="action-btn-cancel" (click)="navigateBack()">
+              {{ 'REGISTER_INSURED.CANCEL' | translate }}
+            </button>
+            <button
+              type="submit"
+              mat-raised-button
+              color="primary"
+              class="action-btn-submit"
+              [disabled]="submitting() || !strategy"
+            >
+              @if (submitting()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>check_circle</mat-icon>
+              }
+              {{ 'REGISTER_INSURED.SUBMIT' | translate }}
+            </button>
+          } @else if (isEdit()) {
+            <button type="button" mat-stroked-button class="action-btn-cancel"
+              (click)="cancelEdit()" [disabled]="busy()">
+              {{ 'REGISTER_INSURED.CANCEL' | translate }}
+            </button>
+            <button type="button" mat-raised-button color="primary" class="action-btn-submit"
+              (click)="save()" [disabled]="busy()">
+              @if (busy()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              {{ 'REGISTER_INSURED.SAVE_CHANGES' | translate }}
+            </button>
+          } @else if (isReview()) {
+            <button type="button" mat-stroked-button class="action-btn-reject" (click)="reject()">
+              <mat-icon>cancel</mat-icon>
+              {{ 'CASE_DETAIL.REJECT' | translate }}
+            </button>
+            <button type="button" mat-raised-button color="primary" class="action-btn-submit" (click)="approve()">
+              <mat-icon>check_circle</mat-icon>
+              {{ 'CASE_DETAIL.APPROVE' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+    </form>
+  }
+
+</div>

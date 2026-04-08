@@ -1,1 +1,307 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// ── UAE Government Design System — Google Fonts ─────────────────────────────
+// English: Roboto (body) + Inter (headings) — confirmed on gpssa.gov.ae
+// Arabic : Noto Kufi Arabic (body) + Alexandria (headings) — UAE DS guideline
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;500;600;700;800&family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Alexandria:wght@400;500;600;700;800&display=swap');
+
+// ── UAE / GPSSA design tokens (CSS custom properties) ───────────────────────
+// Primary gold measured from gpssa.gov.ae login button: rgb(124,94,36) = #7c5e24
+// UAE Design System official gold:  #ca9a2c
+// UAE Design System official green: #006b48
+:root {
+  --gpssa-gold:         #7c5e24;
+  --gpssa-gold-hover:   #5e4718;
+  --gpssa-gold-light:   #f5e6c8;
+  --uae-gold:           #ca9a2c;
+  --uae-green:          #006b48;
+  --uae-green-light:    #e6f2ee;
+  --uae-red:            #c8102e;
+  --uae-black:          #232528;
+  --gpssa-burgundy:     #a43534;
+  --gpssa-warm-bg:      #f3f0ea;
+  --gpssa-surface:      #f5f5f5;
+  --gpssa-border:       #e8e2d8;
+  --gpssa-muted:        #6b7280;
+  --gpssa-text:         #1a1e21;
+}
+
+html {
+  height: 100%;
+
+  // Angular Material M3 theme — amber family (≈ UAE Gold) as primary,
+  // green family (≈ UAE Green) as tertiary
+  @include mat.theme(
+    (
+      color: (
+        primary:  mat.$amber-palette,
+        tertiary: mat.$green-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  // ── Override Material system tokens with GPSSA / UAE DS colours ───────────
+  --mat-sys-primary:              #7c5e24;
+  --mat-sys-on-primary:           #ffffff;
+  --mat-sys-primary-container:    #f5e6c8;
+  --mat-sys-on-primary-container: #2b1d00;
+  --mat-sys-secondary:            #006b48;
+  --mat-sys-on-secondary:         #ffffff;
+  --mat-sys-error:                #c8102e;
+  --mat-sys-on-error:             #ffffff;
+
+  // ── Filled (raised) buttons → GPSSA primary gold ─────────────────────────
+  --mat-filled-button-container-color:      #7c5e24;
+  --mat-filled-button-label-text-color:     #ffffff;
+  --mdc-filled-button-container-color:      #7c5e24;
+  --mdc-filled-button-label-text-color:     #ffffff;
+  --mdc-filled-button-container-shape:      8px;
+
+  // ── Border-radius alignment — UAE DS specifies 8 px for interactive controls
+  --mdc-outlined-button-container-shape:    8px;
+  --mdc-outlined-text-field-container-shape: 8px;
+  --mdc-filled-text-field-container-shape:  8px;
+  --mat-card-container-shape:               12px;
+  --mdc-chip-container-shape:               8px;
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--gpssa-surface);
+  color: var(--gpssa-text);
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  height: 100%;
+}
+
+// Headings: Inter — confirmed on gpssa.gov.ae (h2 computed = "Inter, sans-serif")
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  color: var(--gpssa-text);
+}
+
+// ── RTL / Arabic language support ───────────────────────────────────────────
+html[dir='rtl'] body {
+  font-family: 'Noto Kufi Arabic', 'Roboto', sans-serif;
+}
+
+html[dir='rtl'] h1,
+html[dir='rtl'] h2,
+html[dir='rtl'] h3,
+html[dir='rtl'] h4,
+html[dir='rtl'] h5,
+html[dir='rtl'] h6 {
+  font-family: 'Alexandria', 'Noto Kufi Arabic', sans-serif;
+}
+
+html[dir='rtl'] {
+  direction: rtl;
+
+  // Flip directional icons (back/forward arrows etc.)
+  .mat-icon-rtl-mirror {
+    transform: scaleX(-1);
+  }
+}
+
+// ── Modern confirmation dialog panel ────────────────────────────────────────
+.modern-confirm-dialog {
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-shape: 16px;
+    width: min(440px, calc(100vw - 32px));
+    max-width: 100% !important;
+  }
+
+  .mat-mdc-dialog-surface {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 2px 8px  rgba(0, 0, 0, 0.08) !important;
+  }
+
+  [mat-dialog-title] { padding-top: 0 !important; }
+
+  @media (max-width: 360px) {
+    .dlg-actions {
+      flex-direction: column-reverse !important;
+      align-items: stretch !important;
+
+      .dlg-cancel,
+      .dlg-confirm { width: 100%; min-width: unset; }
+    }
+  }
+}
+
+// ── Currency suffix in salary form fields ────────────────────────────────────
+.currency-suffix {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gpssa-muted);
+  letter-spacing: 0.3px;
+  user-select: none;
+  padding-inline-start: 10px;
+  padding-inline-end: 2px;
+}
+
+// ── Datepicker global polish ─────────────────────────────────────────────────
+.mat-datepicker-content {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden;
+}
+
+.mat-calendar { font-family: inherit; }
+
+.mat-calendar-header {
+  background: var(--gpssa-gold);
+  padding: 12px 16px 8px;
+  border-radius: 12px 12px 0 0;
+
+  .mat-calendar-controls { margin: 0; }
+
+  .mat-calendar-period-button,
+  .mat-calendar-previous-button,
+  .mat-calendar-next-button {
+    color: #ffffff !important;
+  }
+}
+
+.mat-calendar-body-selected {
+  background-color: var(--gpssa-gold) !important;
+  color: #ffffff !important;
+  border-radius: 50%;
+}
+
+.mat-calendar-body-today:not(.mat-calendar-body-selected) {
+  border-color: var(--gpssa-gold) !important;
+}
+
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover
+  > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+  background-color: var(--gpssa-gold-light) !important;
+  border-radius: 50%;
+}
+
+// ── Form field consistency ───────────────────────────────────────────────────
+mat-form-field.mat-mdc-form-field {
+  width: 100%;
+}
+
+// ── Custom Paging Bar ────────────────────────────────────────────────────────
+.paging-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--gpssa-border);
+  background: #fafaf8;
+  border-radius: 0 0 12px 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.paging-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.paging-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gpssa-muted);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.paging-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--gpssa-border);
+  border-radius: 6px;
+  padding: 4px 24px 4px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gpssa-text);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 6px center;
+  cursor: pointer;
+  outline: none;
+  min-width: 64px;
+  height: 30px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--gpssa-gold);
+    box-shadow: 0 0 0 3px rgba(124, 94, 36, 0.12);
+  }
+
+  &:hover { border-color: var(--gpssa-gold-light); }
+}
+
+.paging-range {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.paging-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.paging-pages {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 600;
+  min-width: 52px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.paging-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--gpssa-border);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  line-height: 1;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not([disabled]) {
+    background: var(--gpssa-gold);
+    border-color: var(--gpssa-gold);
+    color: #fff;
+  }
+
+  &[disabled] {
+    color: #d1d5db;
+    border-color: #f1f3f7;
+    background: #f9fafb;
+    cursor: default;
+    pointer-events: none;
+  }
+}

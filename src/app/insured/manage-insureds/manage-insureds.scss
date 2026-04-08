@@ -1,0 +1,589 @@
+// ── UAE / GPSSA design tokens ─────────────────────────────────────────────────
+// Aligned with gpssa.gov.ae palette + UAE Design System guidelines
+$navy:    #1A3C6E;          // structural navy — kept for data display
+$gold:    #7c5e24;          // GPSSA primary gold (updated from #8B6914)
+$uae-gold: #ca9a2c;         // UAE DS official gold (active indicators)
+$uae-green: #006b48;        // UAE DS green (active/success states)
+$surface: #f5f5f5;          // neutral surface (aligned with UAE DS neutral)
+$card-bg: #ffffff;
+$border:  #e8e2d8;          // warm-tinted border (aligned with GPSSA)
+$text:    #1a1e21;          // near-black — UAE DS text
+$muted:   #6b7280;
+
+// ── Page layout ───────────────────────────────────────────────────────────────
+.manage-page {
+  padding: 28px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.2px;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: $muted;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+// ── Stat Cards ────────────────────────────────────────────────────────────────
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  &.stat-icon-total {
+    background: rgba(124, 94, 36, 0.08);   // GPSSA gold tint
+    mat-icon { color: $gold; }
+  }
+
+  &.stat-icon-active {
+    background: rgba(0, 107, 72, 0.08);  // UAE DS Green tint
+    mat-icon { color: $uae-green; }
+  }
+
+  &.stat-icon-inactive {
+    background: rgba(117, 117, 117, 0.08);
+    mat-icon { color: #757575; }
+  }
+}
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+
+  &.stat-value-active  { color: $uae-green; }    // UAE DS Green
+  &.stat-value-inactive { color: #757575; }
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// ── Table Card ────────────────────────────────────────────────────────────────
+.table-card {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid $border;
+}
+
+.toolbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus-within {
+    border-color: $gold;       // GPSSA gold focus ring
+    box-shadow: 0 0 0 3px rgba(124, 94, 36, 0.10);
+    background: #fff;
+  }
+}
+
+.search-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $muted;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: $text;
+  height: 38px;
+  font-family: inherit;
+
+  &::placeholder { color: #9ca3af; }
+}
+
+.search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  color: $muted;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  transition: background 0.12s;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { background: rgba(0, 0, 0, 0.06); }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.filter-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 38px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: $card-bg;
+  font-size: 13px;
+  font-weight: 500;
+  color: $muted;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  position: relative;
+  font-family: inherit;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: rgba(124, 94, 36, 0.05);
+    border-color: $gold;
+    color: $gold;
+  }
+
+  &.filter-toggle-active {
+    border-color: $gold;
+    color: $gold;
+    background: rgba(124, 94, 36, 0.07);
+  }
+}
+
+.filter-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $gold;
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 8px;
+}
+
+.clear-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #f5c6c6;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #b71c1c;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover { background: #fce4ec; }
+}
+
+// ── Filter Panel ──────────────────────────────────────────────────────────────
+.filter-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 16px 4px;
+  border-bottom: 1px solid $border;
+  background: rgba(124, 94, 36, 0.03);  // warm gold tint for filter panel
+  animation: filter-slide-in 0.15s ease;
+}
+
+@keyframes filter-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.filter-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-status {
+  max-width: 220px;
+}
+
+// ── Result bar ────────────────────────────────────────────────────────────────
+.result-bar {
+  padding: 8px 16px;
+  border-bottom: 1px solid $border;
+}
+
+.result-count {
+  font-size: 12px;
+  color: $muted;
+  font-weight: 500;
+}
+
+// ── Table area + non-blocking loading overlay ─────────────────────────────────
+.table-area {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  &.table-area-loading {
+    // Dim but don't hide the existing rows — user can still read them
+    tbody tr {
+      opacity: 0.45;
+      transition: opacity 0.15s;
+    }
+  }
+}
+
+.table-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  // Subtle frosted background so the spinner pops without fully blocking content
+  background: rgba(248, 249, 251, 0.55);
+  backdrop-filter: blur(1px);
+  border-radius: 0;
+  pointer-events: none;
+}
+
+// Tiny inline spinner in the result bar (non-blocking, subsequent fetches)
+.inline-spinner {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-inline-start: 8px;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+.table-wrapper {
+  overflow-x: auto;
+  flex: 1;
+}
+
+.insureds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    background: #f8f9fb;
+    padding: 11px 16px;
+    text-align: start;
+    font-size: 11px;
+    font-weight: 700;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid $border;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f7;
+    color: $text;
+    vertical-align: middle;
+    text-align: start;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr {
+    transition: background 0.1s;
+
+    &:hover {
+      background: rgba(124, 94, 36, 0.035);  // warm gold tint on hover
+    }
+  }
+
+  .col-actions {
+    width: 1%;
+    white-space: nowrap;
+  }
+}
+
+// ── Sortable column header ────────────────────────────────────────────────────
+.col-sortable {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background: #eef0f4;
+
+    .sort-icon { opacity: 1; }
+  }
+}
+
+.sort-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-icon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.35;
+  transition: opacity 0.12s;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.sort-active {
+    opacity: 1;
+    color: $navy;
+  }
+}
+
+// ── Data cells ─────────────────────────────────────────────────────────────────
+.member-id {
+  font-weight: 600;
+  color: $navy;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+
+.td-date {
+  font-variant-numeric: tabular-nums;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.td-salary {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.salary-currency {
+  font-size: 11px;
+  font-weight: 600;
+  color: $muted;
+  margin-inline-end: 2px;
+}
+
+// ── Status Badges ─────────────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge-active {
+  background: #e6f2ee;         // UAE DS Green tint
+  color: #006b48;              // UAE DS Green
+  border: 1px solid rgba(0, 107, 72, 0.28);
+
+  .badge-dot { background: #006b48; }
+}
+
+.badge-inactive {
+  background: #f9fafb;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+
+  .badge-dot { background: #9ca3af; }
+}
+
+// ── Inline Actions ────────────────────────────────────────────────────────────
+.inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.action-btn {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+
+  mat-icon {
+    font-size: 17px !important;
+    width: 17px !important;
+    height: 17px !important;
+    color: $muted;
+    transition: color 0.12s;
+  }
+
+  &:hover mat-icon { color: $gold; }         // GPSSA gold on hover
+
+  &.action-btn-danger:hover mat-icon { color: #c8102e; }  // UAE DS Red
+}
+
+.no-actions {
+  font-size: 13px;
+  color: #d1d5db;
+}
+
+// ── Spinner / Empty ───────────────────────────────────────────────────────────
+.centered-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  color: #9ca3af;
+  gap: 12px;
+
+  mat-icon {
+    font-size: 44px;
+    width: 44px;
+    height: 44px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    color: $muted;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .manage-page {
+    padding: 16px;
+  }
+
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-toggle-btn span {
+    display: none;
+  }
+}

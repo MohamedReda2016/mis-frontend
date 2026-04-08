@@ -1,0 +1,74 @@
+<div class="login-page">
+
+  <!-- UAE DS: thin gold accent line at very top of page -->
+  <div class="gov-banner" aria-hidden="true"></div>
+
+  <!-- Header: GPSSA logo + UAE government logo -->
+  <header class="login-header" role="banner">
+    <img src="assets/gpssa-logo.svg" class="header-logo" alt="GPSSA — General Pension and Social Security Authority" />
+    <!-- UAE Government eagle emblem placeholder — right-aligned -->
+    <div aria-hidden="true"></div>
+  </header>
+
+  <!-- Body: centred login card -->
+  <main class="login-body" role="main">
+    <div class="login-card" role="region" [attr.aria-label]="'LOGIN.TITLE' | translate">
+
+      <!-- Gold header strip with title -->
+      <div class="card-header">
+        <h1 class="card-header-title">{{ 'LOGIN.TITLE' | translate }}</h1>
+        <p class="card-header-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
+      </div>
+
+      <!-- Form body -->
+      <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'LOGIN.USERNAME' | translate }}</mat-label>
+            <input matInput formControlName="username" autocomplete="username" />
+            @if (form.controls.username.invalid && form.controls.username.touched) {
+              <mat-error>{{ 'LOGIN.USERNAME_REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="current-password" />
+            @if (form.controls.password.invalid && form.controls.password.touched) {
+              <mat-error>{{ 'LOGIN.PASSWORD_REQUIRED' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          @if (error()) {
+            <div class="error-msg" role="alert">
+              <mat-icon aria-hidden="true">error_outline</mat-icon>
+              <span>{{ error()! | translate }}</span>
+            </div>
+          }
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="full-width submit-btn"
+            [disabled]="loading()"
+          >
+            @if (loading()) {
+              <mat-spinner diameter="22" />
+            } @else {
+              {{ 'LOGIN.SUBMIT' | translate }}
+            }
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="login-footer" role="contentinfo">
+    &copy; {{ 2025 }} {{ 'LOGIN.FOOTER_ORG' | translate }}
+  </footer>
+
+</div>

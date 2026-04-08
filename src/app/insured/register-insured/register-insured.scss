@@ -1,0 +1,551 @@
+// ── UAE / GPSSA design tokens ─────────────────────────────────────────────────
+// Aligned with gpssa.gov.ae palette + UAE Design System guidelines
+$navy:      #1A3C6E;           // structural navy — kept for data display
+$gold:      #7c5e24;           // GPSSA primary gold (updated from #8B6914)
+$uae-gold:  #ca9a2c;           // UAE DS official gold (decorative)
+$uae-green: #006b48;           // UAE DS green
+$surface:   #f5f5f5;           // neutral surface
+$card-bg:   #ffffff;
+$border:    #e8e2d8;           // warm-tinted border
+$text:      #1a1e21;           // near-black — UAE DS text
+$muted:     #6b7280;
+$danger:    #c8102e;           // UAE DS Red (updated from #dc2626)
+
+// Section badge colour map
+// Badge 1 uses GPSSA gold to match primary brand; others retain semantic colours
+$badge-1: #7c5e24;             // GPSSA gold — identity section
+$badge-2: #0e7490;             // teal — personal
+$badge-3: #006b48;             // UAE DS Green — salary
+$badge-4: #6d28d9;             // purple — notes
+$badge-5: #92400e;             // amber — attachments
+
+// ── Page layout ───────────────────────────────────────────────────────────────
+.register-page {
+  background: $surface;
+  min-height: 100%;
+  padding-bottom: 100px; // clearance for sticky actions bar
+}
+
+.register-page.embedded {
+  background: transparent;
+  padding: 0 0 80px;
+}
+
+// ── Page Header ───────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 32px 20px;
+  background: $card-bg;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn {
+  flex-shrink: 0;
+  color: $muted !important;
+
+  &:hover { color: $navy !important; background: rgba(26, 60, 110, 0.06) !important; }
+}
+
+.page-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: $text;
+  letter-spacing: -0.2px;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: $muted;
+}
+
+// ── Init loading ──────────────────────────────────────────────────────────────
+.init-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px;
+  gap: 16px;
+  color: $muted;
+
+  p { margin: 0; font-size: 14px; }
+}
+
+// ── Form body ─────────────────────────────────────────────────────────────────
+.form-body {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    padding: 16px 16px 0;
+    gap: 12px;
+  }
+}
+
+// ── Section card ──────────────────────────────────────────────────────────────
+.form-section {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+// Section header strip
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid $border;
+  background: #fafbfd;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $badge-1;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0;
+
+  &--2 { background: $badge-2; }
+  &--3 { background: $badge-3; }
+  &--4 { background: $badge-4; }
+  &--5 { background: $badge-5; }
+}
+
+.section-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: $muted;
+  flex-shrink: 0;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
+}
+
+.section-desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: $muted;
+  line-height: 1.3;
+}
+
+// Section body — padding for form fields
+.section-body {
+  padding: 24px;
+
+  @media (max-width: 640px) {
+    padding: 16px;
+  }
+}
+
+// ── Alert ─────────────────────────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &.alert-warn {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    mat-icon { color: #f59e0b; }
+  }
+}
+
+// ── Composite Member-ID field ─────────────────────────────────────────────────
+.field-block {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 8px;
+}
+
+.required-star {
+  color: $danger;
+  margin-inline-start: 2px;
+}
+
+.composite-field {
+  display: flex;
+  align-items: flex-start;
+}
+
+.composite-prefix {
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  background: #f3f4f6;
+  color: $navy;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  // Logical properties — border joins the input field regardless of LTR / RTL
+  border-inline-end: none;
+  border-start-start-radius: 8px;
+  border-end-start-radius: 8px;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+.composite-input {
+  flex: 1;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    // Mirror of prefix: round only the "end" corners
+    border-start-start-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+    border-start-end-radius: 8px !important;
+    border-end-end-radius: 8px !important;
+  }
+}
+
+.field-hint-msg {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: $muted;
+  line-height: 1.5;
+}
+
+.field-error-msg {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: $danger;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// ── Field prefix icon ─────────────────────────────────────────────────────────
+.field-prefix-icon {
+  color: $muted;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-inline-end: 4px;
+}
+
+// ── Grids ─────────────────────────────────────────────────────────────────────
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+
+  @media (max-width: 580px) {
+    grid-template-columns: 1fr;
+  }
+
+  mat-form-field { width: 100%; }
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 20px;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
+  mat-form-field { width: 100%; }
+}
+
+.full-width { width: 100%; }
+
+// Number inputs: always LTR so digits read left-to-right in both UI languages.
+// The field itself honours document direction (prefix/suffix side), but the
+// entered value stays visually natural.
+.numeric-input {
+  direction: ltr;
+  text-align: start; // left-aligned in English (LTR)
+}
+
+// In Arabic (RTL), align amounts to the right — the natural reading position
+// for currency values in right-to-left interfaces.
+:host-context(html[dir="rtl"]) .numeric-input {
+  text-align: end; // = right when direction:ltr is applied on the input
+}
+
+// ── Name Groups ───────────────────────────────────────────────────────────────
+.name-group {
+  &--spaced {
+    margin-top: 24px;
+  }
+}
+
+.name-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.lang-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+
+  &--ar {
+    background: rgba(14, 116, 144, 0.1);
+    color: #0e7490;
+    border: 1px solid rgba(14, 116, 144, 0.25);
+  }
+
+  &--en {
+    background: rgba(124, 94, 36, 0.08);   // GPSSA gold tint
+    color: $gold;
+    border: 1px solid rgba(124, 94, 36, 0.22);
+  }
+}
+
+.name-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+// ── Contributable Breakdown Card ──────────────────────────────────────────────
+.breakdown-card {
+  margin-top: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.breakdown-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: rgba(26, 60, 110, 0.04);
+  border-bottom: 1px solid $border;
+  font-size: 12px;
+  font-weight: 700;
+  color: $navy;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $navy;
+    opacity: 0.7;
+  }
+}
+
+.breakdown-rows {
+  padding: 4px 18px 0;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(229, 232, 237, 0.6);
+  font-size: 13px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.breakdown-label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.breakdown-value,
+.breakdown-result {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: $text;
+  // Keep "AED 0.00" reading left-to-right regardless of document direction
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+.breakdown-arrow,
+.breakdown-eq {
+  color: $muted;
+  font-size: 12px;
+}
+
+.breakdown-pct {
+  color: $uae-gold;    // UAE DS gold (lighter decorative shade for percentage)
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 44px;
+  text-align: center;
+}
+
+.breakdown-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(26, 60, 110, 0.04);
+  border-top: 2px solid $border;
+}
+
+.breakdown-total-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.breakdown-total-amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: $navy;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+  // Keep "AED 0.00" reading left-to-right in both UI languages
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+// ── Sticky Actions Bar ────────────────────────────────────────────────────────
+.form-actions-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid $border;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.form-actions-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  @media (max-width: 640px) {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+}
+
+.action-btn-cancel,
+.action-btn-submit,
+.action-btn-reject {
+  border-radius: 8px !important;
+  height: 42px;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  min-width: 120px;
+  letter-spacing: 0.1px;
+
+  mat-spinner { display: inline-flex; }
+}
+
+.action-btn-reject {
+  color: $danger !important;
+  border-color: rgba(220, 38, 38, 0.4) !important;
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.05) !important;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .page-header {
+    padding: 16px;
+    position: relative; // don't sticky on mobile — saves screen space
+  }
+
+  .page-title { font-size: 17px; }
+
+  .section-header {
+    padding: 14px 16px;
+  }
+
+  .breakdown-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 2px;
+
+    .breakdown-arrow,
+    .breakdown-eq { display: none; }
+
+    .breakdown-pct { order: 2; }
+    .breakdown-result { order: 3; font-weight: 600; }
+    .breakdown-value { font-size: 12px; color: $muted; }
+  }
+}
