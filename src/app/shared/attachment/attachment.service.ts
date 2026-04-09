@@ -45,4 +45,12 @@ export class AttachmentApiService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  /**
+   * Bulk-discard all ACTIVE draft attachments for an abandoned session.
+   * Called by the navigation guard when the user leaves a form without submitting.
+   */
+  discardDraft(draftRequestId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/draft/${draftRequestId}`);
+  }
 }

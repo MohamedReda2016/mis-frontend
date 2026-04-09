@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { draftCleanupGuard } from './shared/attachment/draft-cleanup.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -35,11 +36,13 @@ export const routes: Routes = [
         path: 'insureds/register',
         loadComponent: () =>
           import('./insured/register-insured/register-insured').then(m => m.RegisterInsuredComponent),
+        canDeactivate: [draftCleanupGuard],
       },
       {
         path: 'insureds/:insuredId/update-salary',
         loadComponent: () =>
           import('./insured/update-salary/update-salary').then(m => m.UpdateSalaryComponent),
+        canDeactivate: [draftCleanupGuard],
       },
       {
         path: 'insureds/:insuredId',
@@ -55,6 +58,7 @@ export const routes: Routes = [
         path: 'activity/:instanceId',
         loadComponent: () =>
           import('./activity/case-detail/case-detail').then(m => m.CaseDetailComponent),
+        canDeactivate: [draftCleanupGuard],
       },
     ],
   },

@@ -1,10 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
+  OnInit,
   computed,
   inject,
   input,
-  OnInit,
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,8 +14,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DecimalPipe } from '@angular/common';
 import { AttachmentApiService } from '../attachment.service';
+import { UploadTrackingService } from '../upload-tracking.service';
 import { AttachmentDto } from '../attachment.model';
 
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'];
@@ -31,7 +32,6 @@ interface UploadItem {
 @Component({
   selector: 'app-attachment-upload',
   imports: [
-    DecimalPipe,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
@@ -42,10 +42,11 @@ interface UploadItem {
   styleUrl: './attachment-upload.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AttachmentUploadComponent implements OnInit {
-  private attachmentApi = inject(AttachmentApiService);
-  private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
+export class AttachmentUploadComponent implements OnInit, OnDestroy {
+  private attachmentApi    = inject(AttachmentApiService);
+  private uploadTracking   = inject(UploadTrackingService);
+  private snackBar         = inject(MatSnackBar);
+  private translate        = inject(TranslateService);
 
   /**
    * Draft-mode: client-generated UUID that groups all files for one draft session.
@@ -77,9 +78,12 @@ export class AttachmentUploadComponent implements OnInit {
 
   ngOnInit(): void {
     const cid = this.caseId();
+    const effectiveDraftId = this.draftRequestId() ?? this.sessionDraftId;
+    const isDraftMode = !cid;
+
     const source$ = cid
       ? this.attachmentApi.listByCase(cid)
-      : this.attachmentApi.listByDraft(this.draftRequestId() ?? this.sessionDraftId);
+      : this.attachmentApi.listByDraft(effectiveDraftId);
 
     source$.subscribe({
       next: list => {
@@ -89,9 +93,21 @@ export class AttachmentUploadComponent implements OnInit {
           uploading: false,
         }));
         this.items.set(existing);
+
+        // Register this session with the tracking service so the route guard
+        // can inspect upload state without a direct reference to this component.
+        if (isDraftMode) {
+          this.uploadTracking.beginDraftSession(effectiveDraftId, existing.length);
+        }
       },
       error: () => { /* Not critical — user can still upload fresh files. */ },
     });
+  }
+
+  ngOnDestroy(): void {
+    // Always reset tracking state when the component is torn down so the next
+    // page starts with a clean slate.
+    this.uploadTracking.endSession();
   }
 
   // ── Drag & Drop ─────────────────────────────────────────────────────────────
@@ -154,16 +170,25 @@ export class AttachmentUploadComponent implements OnInit {
     const item: UploadItem = { id: tempId, file, uploading: true };
     this.items.update(list => [...list, item]);
 
+    const isDraftMode = !this.caseId();
     const effectiveDraftId = this.draftRequestId() ?? this.sessionDraftId;
+
+    this.uploadTracking.trackUploadStart();
+
     this.attachmentApi.upload(
       file, effectiveDraftId, this.serviceType(), this.uploadedBy(), this.caseId(),
     ).subscribe({
       next: att => {
+        this.uploadTracking.trackUploadEnd();
+        if (isDraftMode) this.uploadTracking.trackAttachmentAdded();
+
         this.items.update(list =>
           list.map(it => it.id === tempId ? { id: att.id, attachment: att, uploading: false } : it)
         );
       },
       error: err => {
+        this.uploadTracking.trackUploadEnd();
+
         const msg = err.error?.message
           ?? this.translate.instant('ATTACHMENTS.ERROR_UPLOAD_FAILED', { name: file.name });
         this.items.update(list =>
@@ -183,6 +208,7 @@ export class AttachmentUploadComponent implements OnInit {
     }
     this.attachmentApi.delete(item.attachment.id).subscribe({
       next: () => {
+        if (!this.caseId()) this.uploadTracking.trackAttachmentRemoved();
         this.items.update(list => list.filter(it => it.id !== item.id));
       },
       error: () => {

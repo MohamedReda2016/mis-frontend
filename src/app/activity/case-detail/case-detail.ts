@@ -8,6 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { switchMap } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { ActivityService } from '../activity.service';
+import { CanDeactivateComponent } from '../../shared/attachment/draft-cleanup.guard';
+import { UploadTrackingService } from '../../shared/attachment/upload-tracking.service';
 import { CaseHistoryEntry, WorkflowInstance } from '../activity.model';
 import { Insured, InsuredFormControl, InsuredRequest } from '../../insured/insured.model';
 import { InsuredService } from '../../insured/insured.service';
@@ -47,14 +49,15 @@ const EDITABLE_QUEUE = 'STAGE1_QUEUE';
   styleUrl: './case-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CaseDetailComponent {
-  private activityService = inject(ActivityService);
-  private insuredService  = inject(InsuredService);
-  private authService     = inject(AuthService);
-  private route           = inject(ActivatedRoute);
-  private router          = inject(Router);
-  private snackBar        = inject(MatSnackBar);
-  private translate       = inject(TranslateService);
+export class CaseDetailComponent implements CanDeactivateComponent {
+  private activityService  = inject(ActivityService);
+  private insuredService   = inject(InsuredService);
+  private authService      = inject(AuthService);
+  private route            = inject(ActivatedRoute);
+  private router           = inject(Router);
+  private snackBar         = inject(MatSnackBar);
+  private translate        = inject(TranslateService);
+  private uploadTracking   = inject(UploadTrackingService);
 
   protected readonly currentUser = this.authService.currentUser;
 
@@ -168,6 +171,24 @@ export class CaseDetailComponent {
   }
 
   goBack(): void { this.router.navigate(['/dashboard/activity']); }
+
+  /**
+   * Blocks navigation only when a file is currently being transmitted.
+   * Unlike the form routes there is no draft cleanup here — case-mode uploads
+   * are linked directly to the case the moment they succeed, so there are no
+   * orphan files to discard.
+   */
+  canDeactivate(): boolean {
+    if (this.uploadTracking.uploadsInProgress()) {
+      this.snackBar.open(
+        this.translate.instant('ATTACHMENTS.UPLOAD_IN_PROGRESS'),
+        'OK',
+        { duration: 3000 },
+      );
+      return false;
+    }
+    return true;
+  }
 
   actionMeta(action: string): ActionMeta {
     return ACTION_META[action.toUpperCase()] ?? DEFAULT_ACTION_META;

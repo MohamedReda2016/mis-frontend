@@ -15,7 +15,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { startWith } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +37,9 @@ import { InsuredService } from '../insured.service';
 import { Insured } from '../insured.model';
 import { SalaryConfig } from '../../employer/employer.model';
 import { AttachmentUploadComponent } from '../../shared/attachment/attachment-upload/attachment-upload';
+import { AttachmentApiService } from '../../shared/attachment/attachment.service';
+import { CanDeactivateComponent } from '../../shared/attachment/draft-cleanup.guard';
+import { UploadTrackingService } from '../../shared/attachment/upload-tracking.service';
 import { AuthService } from '../../auth/auth.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../core/confirm-dialog';
 
@@ -80,19 +84,24 @@ function minDateValidator(getMinDate: () => Date | null): ValidatorFn {
   styleUrl: './update-salary.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UpdateSalaryComponent {
-  private insuredService = inject(InsuredService);
+export class UpdateSalaryComponent implements CanDeactivateComponent {
+  private insuredService  = inject(InsuredService);
   private employerService = inject(EmployerService);
   private employerContext = inject(EmployerContextService);
-  private authService = inject(AuthService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
+  private authService     = inject(AuthService);
+  private route           = inject(ActivatedRoute);
+  private router          = inject(Router);
+  private dialog          = inject(MatDialog);
+  private snackBar        = inject(MatSnackBar);
+  private translate       = inject(TranslateService);
+  private attachmentApi   = inject(AttachmentApiService);
+  private uploadTracking  = inject(UploadTrackingService);
 
   /** Stable UUID for this draft session — generated once on component creation. */
   readonly draftRequestId = crypto.randomUUID();
+
+  /** Set to true on successful submission so the guard skips cleanup. */
+  private submitted = signal(false);
 
   protected employer = this.employerContext.selectedEmployer;
 
@@ -204,26 +213,46 @@ export class UpdateSalaryComponent {
   }
 
   navigateBack(): void {
-    const insured = this.insured();
-    if (!this.form.dirty) {
-      this.goBack(insured);
-      return;
+    // The canDeactivate guard handles the discard dialog and draft cleanup.
+    this.goBack(this.insured());
+  }
+
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.submitted()) return true;
+
+    if (this.uploadTracking.uploadsInProgress()) {
+      this.snackBar.open(
+        this.translate.instant('ATTACHMENTS.UPLOAD_IN_PROGRESS'),
+        'OK',
+        { duration: 3000 },
+      );
+      return false;
     }
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: {
-          titleKey:   'REGISTER_INSURED.DISCARD_TITLE',
-          messageKey: 'REGISTER_INSURED.DISCARD_CONFIRM',
-          confirmKey: 'REGISTER_INSURED.DISCARD_BTN',
-          variant:    'warning',
-        } satisfies ConfirmDialogData,
-        panelClass:   'modern-confirm-dialog',
-        disableClose: true,
-      })
-      .afterClosed()
-      .subscribe(confirmed => {
-        if (confirmed) this.goBack(insured);
-      });
+
+    if (!this.form.dirty && !this.uploadTracking.hasDraftAttachments()) return true;
+
+    return this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titleKey:   'REGISTER_INSURED.DISCARD_TITLE',
+        messageKey: 'REGISTER_INSURED.DISCARD_CONFIRM',
+        confirmKey: 'REGISTER_INSURED.DISCARD_BTN',
+        variant:    'warning',
+      } satisfies ConfirmDialogData,
+      panelClass:   'modern-confirm-dialog',
+      disableClose: true,
+    }).afterClosed().pipe(
+      switchMap(confirmed => {
+        if (!confirmed) return of(false);
+        const draftId = this.uploadTracking.currentDraftId();
+        if (draftId && this.uploadTracking.hasDraftAttachments()) {
+          return this.attachmentApi.discardDraft(draftId).pipe(
+            map(() => true as boolean),
+            catchError(() => of(true as boolean)),
+          );
+        }
+        return of(true as boolean);
+      }),
+    );
   }
 
   private goBack(insured: Insured | null): void {
@@ -293,6 +322,7 @@ export class UpdateSalaryComponent {
     this.insuredService.submitSalaryUpdate(employerId, insured.id, payload).subscribe({
       next: () => {
         this.submitting.set(false);
+        this.submitted.set(true);   // tell the guard: no cleanup needed, files are linked
         this.snackBar.open(
           this.translate.instant('UPDATE_SALARY.SUCCESS', {
             memberId: insured.memberId,

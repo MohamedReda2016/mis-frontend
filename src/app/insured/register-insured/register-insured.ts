@@ -20,8 +20,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map, startWith } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -43,6 +43,9 @@ import { EmployerService } from '../../employer/employer.service';
 import { Insured, InsuredFieldConfig, InsuredFormControl, InsuredRequest } from '../insured.model';
 import { SalaryConfig } from '../../employer/employer.model';
 import { AttachmentUploadComponent } from '../../shared/attachment/attachment-upload/attachment-upload';
+import { AttachmentApiService } from '../../shared/attachment/attachment.service';
+import { CanDeactivateComponent } from '../../shared/attachment/draft-cleanup.guard';
+import { UploadTrackingService } from '../../shared/attachment/upload-tracking.service';
 
 
 const ARABIC_PATTERN = /^[\u0600-\u06FF\s\-]+$/;
@@ -96,16 +99,18 @@ function ageRangeValidator(min: number, max: number): ValidatorFn {
   styleUrl: './register-insured.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RegisterInsuredComponent implements OnInit {
-  protected authService = inject(AuthService);
-  private insuredService = inject(InsuredService);
+export class RegisterInsuredComponent implements OnInit, CanDeactivateComponent {
+  protected authService   = inject(AuthService);
+  private insuredService  = inject(InsuredService);
   private employerService = inject(EmployerService);
   private employerContext = inject(EmployerContextService);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-  private translate = inject(TranslateService);
-  private langService = inject(LanguageService);
+  private router          = inject(Router);
+  private dialog          = inject(MatDialog);
+  private snackBar        = inject(MatSnackBar);
+  private translate       = inject(TranslateService);
+  private langService     = inject(LanguageService);
+  private attachmentApi   = inject(AttachmentApiService);
+  private uploadTracking  = inject(UploadTrackingService);
 
   protected employer = this.employerContext.selectedEmployer;
 
@@ -154,7 +159,9 @@ export class RegisterInsuredComponent implements OnInit {
 
   // ── State ───────────────────────────────────────────────
   initLoading = signal(true);
-  submitting = signal(false);
+  submitting  = signal(false);
+  /** Set to true on successful submission so the guard skips cleanup. */
+  private submitted = signal(false);
 
   /** Stable UUID for this draft session — generated once on component creation. */
   readonly draftRequestId = crypto.randomUUID();
@@ -416,25 +423,58 @@ export class RegisterInsuredComponent implements OnInit {
   }
 
   navigateBack(): void {
-    if (!this.form.dirty) {
-      this.router.navigate(['/dashboard/insureds']);
-      return;
+    // The canDeactivate guard handles the discard dialog and draft cleanup.
+    this.router.navigate(['/dashboard/insureds']);
+  }
+
+  /**
+   * Called by the `draftCleanupGuard` before any navigation away from this route.
+   *
+   * - If the form was already submitted the guard is a no-op (draft files are linked to the case).
+   * - If an upload is in progress navigation is blocked with a snackbar — the user must wait.
+   * - Otherwise a discard dialog is shown; on confirmation draft files are deleted immediately.
+   */
+  canDeactivate(): Observable<boolean> | boolean {
+    // Already submitted — allow Angular to navigate freely.
+    if (this.submitted()) return true;
+
+    // Upload in progress — block silently with a feedback snackbar.
+    if (this.uploadTracking.uploadsInProgress()) {
+      this.snackBar.open(
+        this.translate.instant('ATTACHMENTS.UPLOAD_IN_PROGRESS'),
+        'OK',
+        { duration: 3000 },
+      );
+      return false;
     }
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: {
-          titleKey:   'REGISTER_INSURED.DISCARD_TITLE',
-          messageKey: 'REGISTER_INSURED.DISCARD_CONFIRM',
-          confirmKey: 'REGISTER_INSURED.DISCARD_BTN',
-          variant:    'warning',
-        } satisfies ConfirmDialogData,
-        panelClass:   'modern-confirm-dialog',
-        disableClose: true,
-      })
-      .afterClosed()
-      .subscribe(confirmed => {
-        if (confirmed) this.router.navigate(['/dashboard/insureds']);
-      });
+
+    // Nothing to warn about — navigate freely.
+    if (!this.form.dirty && !this.uploadTracking.hasDraftAttachments()) return true;
+
+    // Show a single discard dialog covering both form changes and uploaded files.
+    return this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titleKey:   'REGISTER_INSURED.DISCARD_TITLE',
+        messageKey: 'REGISTER_INSURED.DISCARD_CONFIRM',
+        confirmKey: 'REGISTER_INSURED.DISCARD_BTN',
+        variant:    'warning',
+      } satisfies ConfirmDialogData,
+      panelClass:   'modern-confirm-dialog',
+      disableClose: true,
+    }).afterClosed().pipe(
+      switchMap(confirmed => {
+        if (!confirmed) return of(false);
+        const draftId = this.uploadTracking.currentDraftId();
+        if (draftId && this.uploadTracking.hasDraftAttachments()) {
+          // Best-effort cleanup — navigate regardless of whether the call succeeds.
+          return this.attachmentApi.discardDraft(draftId).pipe(
+            map(() => true as boolean),
+            catchError(() => of(true as boolean)),
+          );
+        }
+        return of(true as boolean);
+      }),
+    );
   }
 
   submit(): void {
@@ -475,6 +515,7 @@ export class RegisterInsuredComponent implements OnInit {
     }, submittedBy).subscribe({
       next: saved => {
         this.submitting.set(false);
+        this.submitted.set(true);   // tell the guard: no cleanup needed, files are linked
         this.snackBar.open(
           this.translate.instant('REGISTER_INSURED.SUCCESS', { memberId: saved.memberId }),
           'OK',

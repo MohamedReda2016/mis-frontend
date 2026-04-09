@@ -515,6 +515,7 @@
     "ERROR_DELETE_FAILED": "Could not remove the document. Please try again.",
     "ERROR_PREVIEW_FAILED": "Could not load the document for preview. Please try again.",
     "DOWNLOAD": "Download document",
-    "ERROR_DOWNLOAD_FAILED": "Could not download the document. Please try again."
+    "ERROR_DOWNLOAD_FAILED": "Could not download the document. Please try again.",
+    "UPLOAD_IN_PROGRESS": "A file is still uploading. Please wait before leaving this page."
   }
 }
